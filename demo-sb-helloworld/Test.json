@@ -1,0 +1,22 @@
+{
+  "name" : {
+    "firstName" : "Vincent",
+    "lastName" : "Lau",
+    "nickName" : null
+  },
+  "age" : 14,
+  "address" : [
+    {
+      "line1" : "ABC",
+      "line2" : "ABC",
+      "line3" : "ABC"
+    },
+    {
+      "line1" : "ABC",
+      "line2" : "ABC",
+      "line3" : "ABC"
+    }
+  ]
+}
+
+
