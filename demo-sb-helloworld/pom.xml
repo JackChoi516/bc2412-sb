@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bootcamp.demo</groupId>
-	<artifactId>demo-sb-helloword</artifactId>
+	<artifactId>demo-sb-helloworld</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo-sb-helloword</name>
+	<name>demo-sb-helloworld</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

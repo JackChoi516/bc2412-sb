@@ -1,10 +1,10 @@
-package com.bootcamp.demo.demo_sb_helloword;
+package com.bootcamp.demo.demo_sb_helloworld;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoSbHellowordApplicationTests {
+class DemoSbHelloworldApplicationTests {
 
 	@Test
 	void contextLoads() {
