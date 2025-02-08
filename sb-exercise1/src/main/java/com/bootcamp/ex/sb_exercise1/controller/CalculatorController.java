@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bootcamp.ex.sb_exercise1.model.Calculator;
 import com.bootcamp.ex.sb_exercise1.model.Operation;
 import com.bootcamp.ex.sb_exercise1.service.CalculatorService;
 
@@ -14,7 +16,7 @@ public class CalculatorController {
   private CalculatorService calculatorService;
 
   @GetMapping(value = "/operation")
-  public Operation operation(@RequestParam String x, @RequestParam String y, @RequestParam String operation){
+  public Calculator operation(@RequestParam String x, @RequestParam String y, @RequestParam Operation operation){
     return this.calculatorService.operate(x, y, operation);
   }
 }
