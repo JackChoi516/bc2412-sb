@@ -13,6 +13,12 @@ public class Calculator {
 
   }
 
+  public Calculator(String x, String y, Operation operation){
+    this.x = x;
+    this.y = y;
+    this.operation = operation;
+  }
+
   private String x;
   private String y;
   private Operation operation;

@@ -23,6 +23,19 @@ public class CalculatorService {
    return Calculator.operate;
   }
 
+  public Calculator postOperate(Calculator calculator){
+    Calculator.operate.setX(calculator.getX());
+    Calculator.operate.setY(calculator.getY());
+    Calculator.operate.setOperation(calculator.getOperation());
+    Calculator.operate.setResult(switch (calculator.getOperation()) {
+    case ADD -> add(calculator.getX(), calculator.getY());
+    case SUB -> sub(calculator.getX(), calculator.getY());
+    case MUL -> mul(calculator.getX(), calculator.getY());
+    case DIV -> div(calculator.getX(), calculator.getY());
+   });
+   return Calculator.operate;
+  }
+
   public static BigDecimal add(String x, String y){
     return BigDecimal.valueOf(Double.parseDouble(x)) //
       .add(BigDecimal.valueOf(Double.parseDouble(y)));
