@@ -2,6 +2,7 @@ package com.bootcamp.ex.sb_exercise1.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,5 +26,10 @@ public class CalculatorController {
   @PostMapping(value = "/operation")
   public Calculator postOperate(@RequestBody Calculator calculator){
     return this.calculatorService.postOperate(calculator);
+  }
+
+  @GetMapping(value = "/operation/{x}/{y}/{operation}")
+  public Calculator pathVariable(@PathVariable String x, @PathVariable String y, @PathVariable Operation operation){
+    return this.calculatorService.pathVariable(x, y, operation);
   }
 }

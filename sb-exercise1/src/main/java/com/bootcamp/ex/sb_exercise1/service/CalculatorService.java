@@ -14,11 +14,12 @@ public class CalculatorService {
     Calculator.operate.setX(x);
     Calculator.operate.setY(y);
     Calculator.operate.setOperation(operation);
-    Calculator.operate.setResult(switch (operation) {
-    case ADD -> add(x, y);
-    case SUB -> sub(x, y);
-    case MUL -> mul(x, y);
-    case DIV -> div(x, y);
+    Calculator.operate.setResult(
+      switch (operation) {
+        case ADD -> add(x, y);
+        case SUB -> sub(x, y);
+        case MUL -> mul(x, y);
+        case DIV -> div(x, y);
    });
    return Calculator.operate;
   }
@@ -27,13 +28,29 @@ public class CalculatorService {
     Calculator.operate.setX(calculator.getX());
     Calculator.operate.setY(calculator.getY());
     Calculator.operate.setOperation(calculator.getOperation());
-    Calculator.operate.setResult(switch (calculator.getOperation()) {
-    case ADD -> add(calculator.getX(), calculator.getY());
-    case SUB -> sub(calculator.getX(), calculator.getY());
-    case MUL -> mul(calculator.getX(), calculator.getY());
-    case DIV -> div(calculator.getX(), calculator.getY());
+    Calculator.operate.setResult(
+      switch (calculator.getOperation()) {
+        case ADD -> add(calculator.getX(), calculator.getY());
+        case SUB -> sub(calculator.getX(), calculator.getY());
+        case MUL -> mul(calculator.getX(), calculator.getY());
+        case DIV -> div(calculator.getX(), calculator.getY());
    });
    return Calculator.operate;
+  }
+
+  public Calculator pathVariable(String x, String y, Operation operation){
+    Calculator.operate.setX(x);
+    Calculator.operate.setY(y);
+    Calculator.operate.setOperation(operation);
+    Calculator.operate.setResult(
+      switch (operation){
+        case ADD -> add(x, y);
+        case SUB -> sub(x, y);
+        case MUL -> mul(x, y);
+        case DIV -> div(x, y);
+      }
+    );
+    return Calculator.operate;
   }
 
   public static BigDecimal add(String x, String y){
