@@ -24,9 +24,8 @@ public class OrderServiceImpl implements OrderService {
   public OrderEntity createOrder(Long customerId, OrderEntity orderEntity){
     CustomerEntity customerEntity = this.customerRepository.findById(customerId) //
       .orElseThrow(() -> new BusinessException("Customer ID not Found."));
-    orderEntity.setCustomerEntity(customerEntity);
-    this.orderRepository.save(orderEntity);
-    return orderEntity;
+    orderEntity.setCustomerEntity(customerEntity);   
+    return this.orderRepository.save(orderEntity);
   }
 
 }
