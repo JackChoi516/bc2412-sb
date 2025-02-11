@@ -8,16 +8,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.bootcamp.demo.demo_sb_customer.codewave.ApiResp;
 import com.bootcamp.demo.demo_sb_customer.entity.CustomerEntity;
 
 public interface CustomerOperation {
   
   @PostMapping(value = "/customer")
-  public CustomerEntity createCustomer(@RequestBody CustomerEntity customereEntity);
+  ApiResp<CustomerEntity> createCustomer(@RequestBody CustomerEntity customereEntity);
 
   @GetMapping(value = "/customer")
-  public Optional<CustomerEntity> getCustomer(@RequestParam Long id);
+  ApiResp<Optional<CustomerEntity>> getCustomer(@RequestParam Long id);
 
   @GetMapping(value = "/customers")
-  public List<CustomerEntity> getCustomers();
+  ApiResp<List<CustomerEntity>> getCustomers();
 }
