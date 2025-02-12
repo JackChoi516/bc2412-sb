@@ -32,9 +32,9 @@ public class UserDTO {
   @Getter
   @AllArgsConstructor
   public static class Geo {
-    @JsonProperty(value = "lat")
+    @JsonProperty(value = "x")
     private String latitude;
-    @JsonProperty(value = "lng")
+    @JsonProperty(value = "y")
     private String longitude;
   }
 }
