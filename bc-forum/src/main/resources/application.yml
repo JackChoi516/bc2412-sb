@@ -1,0 +1,10 @@
+server: 
+  port: 8103
+
+api:
+  jsonplaceholder:
+    domain: "jsonplaceholder.typicode.com"
+    endpoints:
+      users: "/users"
+      posts: "/posts"
+      comments: "/comments"
