@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService{
     for (CommentDto c : commentDtos){
       for (UserDTO u : userDTOs){
        u.getPosts().stream().forEach(e ->{
-        if (c.getId() == e.getId()){
+        if (c.getPostId() == e.getId()){
           e.getComments().add(UserDTO.Comment.builder() //
           .id(c.getId()).name(c.getName()).email(c.getEmail()).body(c.getBody()).build());
         }
