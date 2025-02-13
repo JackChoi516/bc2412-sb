@@ -2,7 +2,6 @@ package com.bootcamp.demo.demo_sb_customer.controller.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +10,6 @@ import com.bootcamp.demo.demo_sb_customer.codewave.ApiResp;
 import com.bootcamp.demo.demo_sb_customer.codewave.Syscode;
 import com.bootcamp.demo.demo_sb_customer.controller.UserOperation;
 import com.bootcamp.demo.demo_sb_customer.dto.UserDTO;
-import com.bootcamp.demo.demo_sb_customer.dto.UserDTO.Address;
-import com.bootcamp.demo.demo_sb_customer.dto.UserDTO.Geo;
 import com.bootcamp.demo.demo_sb_customer.dto.mapper.UserDTOMapper;
 import com.bootcamp.demo.demo_sb_customer.model.dto.UserDto;
 import com.bootcamp.demo.demo_sb_customer.service.impl.UserServiceImpl;

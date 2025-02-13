@@ -12,3 +12,12 @@ spring.datasource:
 spring.jpa:
   show-sql: true
   hibernate.ddl-auto: update
+
+# Custom Variables
+api:
+  jsonplaceholder:
+    domain: "jsonplaceholder.typicode.com"
+    endpoints:
+      users: "/users"
+
+      

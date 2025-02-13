@@ -41,7 +41,7 @@ public class EntityMapper {
   public GeoEntity map(UserDto.Geo geo){
     return GeoEntity.builder()
       .latitude(Double.parseDouble(geo.getLatitude()))
-      .longitude(Double.parseDouble(geo.getLongitude()))
+      .longitude(Double.valueOf(geo.getLongitude()))
       .build();
   }
 }
