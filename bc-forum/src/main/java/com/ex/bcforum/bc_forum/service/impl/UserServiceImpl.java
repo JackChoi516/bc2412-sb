@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.ex.bcforum.bc_forum.codewave.BusinessException;
+import com.ex.bcforum.bc_forum.codewave.SysCode;
 import com.ex.bcforum.bc_forum.dto.UserCommentDTO;
 import com.ex.bcforum.bc_forum.dto.UserDTO;
 import com.ex.bcforum.bc_forum.model.dto.CommentDto;
@@ -48,6 +50,10 @@ public class UserServiceImpl implements UserService{
     List<CommentDto> commentDtos = Arrays.asList(this.restTemplate.getForObject(commentsUrl, CommentDto[].class));
     List<PostDto> postDtos = Arrays.asList(this.restTemplate.getForObject(postsUrl, PostDto[].class));
     List<UserDto> userDtos = Arrays.asList(this.restTemplate.getForObject(usersUrl, UserDto[].class));
+
+    if (commentDtos.size() == 0 || postDtos.size() == 0 || userDtos.size() == 0){
+      throw BusinessException.of(SysCode.RESTTEMPLATE_ERROR);
+    }
 
     // List<UserDTO.Post> postDTOs = postDtos.stream().map(e ->
     //   UserDTO.Post.builder().id(e.getId()).title(e.getTitle()).body(e.getBody()).build()) //
@@ -157,12 +163,18 @@ public class UserServiceImpl implements UserService{
         .id(u.getId()).username(u.getUsername()).comments(new ArrayList<UserCommentDTO.Comment>()).build();
       }
     }
+    if (resultUser == null){
+      throw BusinessException.of(SysCode.USER_NOT_FOUND);
+    }
 
     List<Long> targetPosts = new ArrayList<>();
     for (PostDto p : postDtos){
       if (p.getUserId() == id){
         targetPosts.add(p.getId());
       }
+    }
+    if (targetPosts.size() == 0){
+      throw BusinessException.of(SysCode.POST_NOT_FOUND);
     }
 
     List<UserCommentDTO.Comment> foundComments = new ArrayList<>();
@@ -173,6 +185,9 @@ public class UserServiceImpl implements UserService{
             .name(c.getName()).email(c.getEmail()).body(c.getBody()).build());
         }
       }
+    }
+    if (foundComments.size() == 0){
+      throw BusinessException.of(SysCode.COMMENT_NOT_FOUND);
     }
 
     resultUser.setComments(foundComments);

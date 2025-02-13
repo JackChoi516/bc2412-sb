@@ -1,6 +1,5 @@
 package com.ex.bcforum.bc_forum.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Builder;
