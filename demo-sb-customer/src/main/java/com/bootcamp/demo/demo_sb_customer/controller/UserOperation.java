@@ -11,7 +11,7 @@ import com.bootcamp.demo.demo_sb_customer.model.dto.UserDto;
 public interface UserOperation {
   // List of UserDto -> List of UserDTO
   @GetMapping(value = "/users")
-  ApiResp<List<UserDTO>> getUsers();
+  List<UserDTO> getUsers();
   
   @GetMapping(value = "user")
   List<UserDto> createUserBy();

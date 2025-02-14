@@ -23,7 +23,7 @@ public class UserController implements UserOperation {
   private UserDTOMapper userDTOMapper;
 
   @Override
-  public ApiResp<List<UserDTO>> getUsers(){
+  public List<UserDTO> getUsers(){
     // List<UserDTO> result = this.userServiceImpl.getUsers().stream() //
     //   .map(e -> new UserDTO(e.getId(), e.getName(), e.getUsername(), e.getEmail(), //
     //     new Address(
@@ -40,7 +40,8 @@ public class UserController implements UserOperation {
     for (UserDto u : this.userServiceImpl.getUsers()){
       result.add(this.userDTOMapper.map(u));
     }
-    return ApiResp.<List<UserDTO>>builder().syscode(Syscode.OK).data(result).build();
+    // return ApiResp.<List<UserDTO>>builder().syscode(Syscode.OK).data(result).build();
+    return result;
   }
 
   @Override
