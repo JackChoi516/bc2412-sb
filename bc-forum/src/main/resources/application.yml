@@ -1,6 +1,18 @@
 server: 
   port: 8103
 
+# spring.datasource.driverClassName
+# # spring.datasource.url
+spring.datasource:
+  driverClassName: "org.postgresql.Driver"
+  url : "jdbc:postgresql://localhost:5432/bcforum"
+  username: "postgres"
+  password: "Lamz999*"
+
+spring.jpa:
+  show-sql: true
+  hibernate.ddl-auto: update
+
 api:
   jsonplaceholder:
     domain: "jsonplaceholder.typicode.com"

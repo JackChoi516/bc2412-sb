@@ -8,21 +8,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ex.bcforum.bc_forum.controller.UserOperation;
 import com.ex.bcforum.bc_forum.dto.UserCommentDTO;
 import com.ex.bcforum.bc_forum.dto.UserDTO;
+import com.ex.bcforum.bc_forum.service.UserService;
 import com.ex.bcforum.bc_forum.service.impl.UserServiceImpl;
 
 @RestController
 public class UserController implements UserOperation{
   @Autowired
-  private UserServiceImpl UserServiceImpl;
+  private UserService UserService;
 
   @Override
   public List<UserDTO> getUsers(){
-    return this.UserServiceImpl.getUsers();
+    return this.UserService.getUsers();
   }
 
   @Override
   public UserCommentDTO getUserComments(Long id){
-    return this.UserServiceImpl.getUserComments(id);
+    return this.UserService.getUserComments(id);
   }
   
 }
