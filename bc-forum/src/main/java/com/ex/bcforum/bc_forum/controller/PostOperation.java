@@ -2,6 +2,7 @@ package com.ex.bcforum.bc_forum.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,4 +20,7 @@ public interface PostOperation {
 
   @PostMapping(value = "/post/{id}")
   ApiResp<PostEntity> addPostByUserId(@PathVariable Long id, @RequestBody PostEntity postEntity);
+
+  @DeleteMapping(value = "/post/{id}")
+  ApiResp<PostEntity> deleteById(@PathVariable Long id);
 }

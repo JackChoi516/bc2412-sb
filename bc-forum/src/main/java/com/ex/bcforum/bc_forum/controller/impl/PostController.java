@@ -33,4 +33,10 @@ public class PostController implements PostOperation{
     return ApiResp.<PostEntity>builder().sysCode(SysCode.OK) //
       .data(this.postService.addPost(id, postEntity)).build();
   }
+
+  @Override
+  public ApiResp<PostEntity> deleteById(Long id){
+    return ApiResp.<PostEntity>builder().sysCode(SysCode.OK) //
+      .data(this.postService.deleteById(id)).build();
+  }
 }

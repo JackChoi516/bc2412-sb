@@ -44,4 +44,15 @@ public class PostServiceImpl implements PostService{
     postEntity.setUserEntity(userEntity);
     return this.postRepository.save(postEntity);
   }
+
+  @Override
+  public PostEntity deleteById(Long id){
+    Optional<PostEntity> post = this.postRepository.findById(id);
+    if (post.isPresent()){
+      this.postRepository.deleteById(id);
+    }else {
+      throw BusinessException.of(SysCode.POST_NOT_FOUND);
+    }
+    return post.get();
+  }
 }
