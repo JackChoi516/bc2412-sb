@@ -19,6 +19,7 @@ public class EntityMapper {
   public UserEntity map(UserDto userDto){
     return UserEntity.builder().name(userDto.getName()).username(userDto.getUsername()) //
       .email(userDto.getEmail()).phone(userDto.getPhone()).website(userDto.getWebsite()) //
+      .postEntities(new ArrayList<>())
       .build();
   }
 

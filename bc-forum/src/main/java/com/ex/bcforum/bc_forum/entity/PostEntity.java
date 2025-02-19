@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,8 +32,11 @@ public class PostEntity {
   @ManyToOne
   @JoinColumn(name = "user_id")
   @Setter
+  @JsonIgnore
   private UserEntity userEntity;
+  @Column(name = "title")
   private String title;
+  @Column(length = 500)
   private String body;
   @OneToMany(mappedBy = "postEntity")
   @Setter

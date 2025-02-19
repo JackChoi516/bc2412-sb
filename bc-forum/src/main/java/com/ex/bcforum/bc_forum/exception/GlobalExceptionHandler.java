@@ -11,18 +11,18 @@ import com.ex.bcforum.bc_forum.codewave.SysCode;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   @ExceptionHandler(value = BusinessException.class)
-  public ApiResp handleBussinessException(BusinessException e){
-    return ApiResp.of(e.getSysCode());
+  public ApiResp<Void> handleBussinessException(BusinessException e){
+    return ApiResp.<Void>builder().sysCode(e.getSysCode()).build();
   }
 
   @ExceptionHandler(value = IllegalArgumentException.class)
-  public ApiResp handleIllegalArgException(IllegalArgumentException e){
-    return ApiResp.of(SysCode.INVALID_INPUT);
+  public ApiResp<Void> handleIllegalArgException(IllegalArgumentException e){
+    return ApiResp.<Void>builder().sysCode(SysCode.INVALID_INPUT).build();
   }
 
   @ExceptionHandler(value = HttpClientErrorException.class)
-  public ApiResp handleHttpClientErrorException(HttpClientErrorException e){
-    return ApiResp.of(SysCode.RESTTEMPLATE_ERROR);
+  public ApiResp<Void> handleHttpClientErrorException(HttpClientErrorException e){
+    return ApiResp.<Void>builder().sysCode(SysCode.RESTTEMPLATE_ERROR).build();
   }
 
 }
