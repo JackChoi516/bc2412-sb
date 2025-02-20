@@ -12,12 +12,13 @@ import com.bootcamp.demo.demo_sb_customer.controller.UserOperation;
 import com.bootcamp.demo.demo_sb_customer.dto.UserDTO;
 import com.bootcamp.demo.demo_sb_customer.dto.mapper.UserDTOMapper;
 import com.bootcamp.demo.demo_sb_customer.model.dto.UserDto;
+import com.bootcamp.demo.demo_sb_customer.service.UserService;
 import com.bootcamp.demo.demo_sb_customer.service.impl.UserServiceImpl;
 
 @RestController
 public class UserController implements UserOperation {
   @Autowired
-  private UserServiceImpl userServiceImpl;
+  private UserService userService;
 
   @Autowired
   private UserDTOMapper userDTOMapper;
@@ -37,7 +38,7 @@ public class UserController implements UserOperation {
     //   ).collect(Collectors.toList());
 
     List<UserDTO> result = new ArrayList<>();
-    for (UserDto u : this.userServiceImpl.getUsers()){
+    for (UserDto u : this.userService.getUsers()){
       result.add(this.userDTOMapper.map(u));
     }
     // return ApiResp.<List<UserDTO>>builder().syscode(Syscode.OK).data(result).build();
@@ -46,6 +47,6 @@ public class UserController implements UserOperation {
 
   @Override
   public List<UserDto> createUserBy(){
-    return this.userServiceImpl.getUsers();
+    return this.userService.getUsers();
   }
 }

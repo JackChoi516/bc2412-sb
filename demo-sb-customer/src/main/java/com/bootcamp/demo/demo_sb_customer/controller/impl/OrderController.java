@@ -7,17 +7,18 @@ import com.bootcamp.demo.demo_sb_customer.codewave.ApiResp;
 import com.bootcamp.demo.demo_sb_customer.codewave.Syscode;
 import com.bootcamp.demo.demo_sb_customer.controller.OrderOperation;
 import com.bootcamp.demo.demo_sb_customer.entity.OrderEntity;
+import com.bootcamp.demo.demo_sb_customer.service.OrderService;
 import com.bootcamp.demo.demo_sb_customer.service.impl.OrderServiceImpl;
 
 @RestController
 public class OrderController implements OrderOperation {
   
   @Autowired
-  private OrderServiceImpl orderServiceImpl;
+  private OrderService orderService;
 
   @Override
   public ApiResp<OrderEntity> createOrder (Long id, OrderEntity orderEntity){
-    OrderEntity serviceResult = this.orderServiceImpl.createOrder(id, orderEntity);
+    OrderEntity serviceResult = this.orderService.createOrder(id, orderEntity);
     return ApiResp.<OrderEntity>builder().syscode(Syscode.OK).data(serviceResult).build();
   }
 }

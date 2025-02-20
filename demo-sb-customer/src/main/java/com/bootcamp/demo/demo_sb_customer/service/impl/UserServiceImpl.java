@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService{
     // Entity, Repository
 
     // Clear DB
-    this.geoRepository.deleteAll();
+    //this.geoRepository.deleteAll();
     this.addressRepository.deleteAll();
     this.companyRepository.deleteAll();
     this.userRepository.deleteAll();
@@ -79,14 +79,14 @@ public class UserServiceImpl implements UserService{
       addressEntity.setUserEntity(userEntity);
       this.addressRepository.save(addressEntity);
 
+      CompanyEntity companyEntity = this.entityMapper.map(e.getCompany());
+      companyEntity.setUserEntity(userEntity);
+      this.companyRepository.save(companyEntity);
+
       GeoEntity geoEntity = this.entityMapper.map(e.getAddress().getGeo());
       geoEntity.setAddressEntity(addressEntity);
       this.geoRepository.save(geoEntity);
 
-      CompanyEntity companyEntity = this.entityMapper.map(e.getCompany());
-      companyEntity.setUserEntity(userEntity);
-      this.companyRepository.save(companyEntity);
-      
       userEntity.setAddressEntity(addressEntity);
       userEntity.setCompanyEntity(companyEntity);
       

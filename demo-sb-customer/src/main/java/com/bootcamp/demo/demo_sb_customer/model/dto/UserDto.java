@@ -20,6 +20,7 @@ public class UserDto {
   private Company company;
 
   @Getter
+  @Builder
   public static class Address {
     private String street;
     private String suite;
@@ -29,6 +30,7 @@ public class UserDto {
   }
 
   @Getter
+  @Builder
   public static class Company {
     private String name;
     private String catchPhrase;
@@ -36,6 +38,7 @@ public class UserDto {
   }
 
   @Getter
+  @Builder
   public static class Geo {
     @JsonProperty(value = "lat")
     private String latitude;

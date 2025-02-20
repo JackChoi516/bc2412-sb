@@ -31,4 +31,19 @@ public class CustomerServiceImpl implements CustomerService {
   public List<CustomerEntity> getCustomers(){
     return this.customerRepository.findAll();
   }
+
+  @Override
+  public List<CustomerEntity> findByName(String name){
+    return this.customerRepository.findByName(name);
+  }
+
+  @Override
+  public List<CustomerEntity> findByNameByJPQL(String name){
+    return this.customerRepository.findByNameByJPQL(name);
+  }
+
+  @Override 
+  public List<CustomerEntity> findByNameByNativeQuery(String name){
+    return this.customerRepository.findByNameByNativeQuery(name);
+  }
 }

@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.bootcamp.demo.demo_sb_customer.codewave.ApiResp;
 import com.bootcamp.demo.demo_sb_customer.controller.impl.CustomerController;
 import com.bootcamp.demo.demo_sb_customer.entity.CustomerEntity;
+import com.bootcamp.demo.demo_sb_customer.service.CustomerService;
 import com.bootcamp.demo.demo_sb_customer.service.impl.CustomerServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(controllers = CustomerController.class) 
 class CustomerControllerTest {
   @MockBean
-  private CustomerServiceImpl customerServiceImpl;
+  private CustomerService customerService;
 
   // ! @WebMvcTest inject MockMvc Bean into context
   @Autowired
@@ -49,7 +50,7 @@ class CustomerControllerTest {
     List<CustomerEntity> serviceResult = Arrays.asList(customerEntity1, customerEntity2);
 
     // Assume the behavior/result for the mock bean
-    Mockito.when(customerServiceImpl.getCustomers()).thenReturn(serviceResult);
+    Mockito.when(customerService.getCustomers()).thenReturn(serviceResult);
 
     // Test
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/customers"));
@@ -94,7 +95,7 @@ class CustomerControllerTest {
     CustomerEntity customerEntityRequest = CustomerEntity.builder() //
     .name("Mary").id(10L).email("Mary@gmail.com").build();
 
-    Mockito.when(customerServiceImpl.createCustomer(customerEntityRequest)).thenReturn(customerEntity1);
+    Mockito.when(customerService.createCustomer(customerEntityRequest)).thenReturn(customerEntity1);
 
     // ! Prepare Request Body Json (Mary)
     // Serialization
@@ -124,6 +125,6 @@ class CustomerControllerTest {
     assertThat(respData.getName(), Matchers.is("John"));
     assertThat(respData.getEmail(), Matchers.is("John@gmail.com"));
 
-    verify(customerServiceImpl, times(1)).createCustomer(customerEntityRequest);
+    verify(customerService, times(1)).createCustomer(customerEntityRequest);
   }
 }

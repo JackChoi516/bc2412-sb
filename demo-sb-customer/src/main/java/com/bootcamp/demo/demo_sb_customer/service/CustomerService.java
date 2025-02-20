@@ -9,5 +9,7 @@ public interface CustomerService {
   CustomerEntity createCustomer (CustomerEntity customerEntity);
   Optional<CustomerEntity> get (Long id);
   List<CustomerEntity> getCustomers();
-  
+  List<CustomerEntity> findByName(String name);
+  List<CustomerEntity> findByNameByJPQL(String name);
+  List<CustomerEntity> findByNameByNativeQuery(String name);
 }

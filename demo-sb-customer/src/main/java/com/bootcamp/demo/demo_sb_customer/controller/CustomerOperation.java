@@ -24,4 +24,13 @@ public interface CustomerOperation {
 
   @GetMapping(value = "/customers")
   ApiResp<List<CustomerEntity>> getCustomers();
+
+  @GetMapping(value = "/customer/findbyname")
+  List<CustomerEntity> findByName(@RequestParam String name);
+
+  @GetMapping(value = "/customer/findbyname/jpql")
+  List<CustomerEntity> findByNameByJPQL(@RequestParam String name);
+
+  @GetMapping(value = "/customer/findbyname/nativequery")
+  List<CustomerEntity> findByNameByNativeQuery(@RequestParam String name);
 }
