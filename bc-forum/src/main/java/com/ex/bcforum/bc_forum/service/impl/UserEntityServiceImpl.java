@@ -141,9 +141,10 @@ public class UserEntityServiceImpl implements UserEntityService{
   @Override
   @Transactional
   public UserEntity putById(UserEntity userEntity){
+    UserEntity userEntity2 = null;
     Optional<UserEntity> target = this.userRepository.findById(userEntity.getId());
     if (target.isPresent()){
-      UserEntity userEntity2 = target.get();
+      userEntity2 = target.get();
       userEntity2.setName(userEntity.getName());
       userEntity2.setUsername(userEntity.getUsername());
       userEntity2.setEmail(userEntity.getEmail());
@@ -154,6 +155,7 @@ public class UserEntityServiceImpl implements UserEntityService{
       if (address == null){
         throw BusinessException.of(SysCode.INVALID_INPUT);
       }
+
       // Geo
       GeoEntity geo = userEntity.getAddressEntity().getGeoEntity();
       if (geo == null){
@@ -162,13 +164,10 @@ public class UserEntityServiceImpl implements UserEntityService{
       GeoEntity existingGeo = this.geoRepository //
       .findByLatitudeAndLongitude(geo.getLatitude(), geo.getLongitude());
       if (existingGeo == null){
-        geo.getAddressEntities().add(address);
         geo = this.geoRepository.save(geo);
       }else {
         geo = existingGeo;
-      }
-      address.setGeoEntity(geo);      
-      userEntity2.setAddressEntity(address); /////
+      }     
 
       // Address
       AddressEntity existingAddress = this.addressRepository.findByStreetAndSuiteAndCityAndZipcode //
@@ -176,15 +175,18 @@ public class UserEntityServiceImpl implements UserEntityService{
       if (existingAddress != null){
           address = existingAddress;
       }else {
-          geo.getAddressEntities().add(address);
-          address.setGeoEntity(geo);
           address.getUserEntity().add(userEntity2);
           address = this.addressRepository.save(address);
+          address.setGeoEntity(geo);
+          geo.getAddressEntities().add(address);
           }
-
+      userEntity2.setAddressEntity(address); /////
+      
       // Company
       CompanyEntity company = userEntity.getCompanyEntity();
-    
+      if (company == null){
+        throw BusinessException.of(SysCode.INVALID_INPUT);
+      }
       CompanyEntity existingCompany = this.companyRepository.findByNameAndCatchPhraseAndBs //
       (company.getName(), company.getCatchPhrase(), company.getBs());
       if (existingCompany == null){
@@ -199,73 +201,6 @@ public class UserEntityServiceImpl implements UserEntityService{
     }else {
       throw BusinessException.of(SysCode.USER_NOT_FOUND);
     }
-    return this.userRepository.save(userEntity);
+    return userEntity2;
   }
-  //////////////////////////////
-  // @Override
-  // @Transactional
-  // public UserEntity putById(UserEntity userEntity) {
-  //     Optional<UserEntity> target = this.userRepository.findById(userEntity.getId());
-  
-  //     if (target.isPresent()) {
-  //         UserEntity userEntity2 = target.get();
-  //         userEntity2.setName(userEntity.getName());
-  //         userEntity2.setUsername(userEntity.getUsername());
-  //         userEntity2.setEmail(userEntity.getEmail());
-  //         userEntity2.setPhone(userEntity.getPhone());
-  //         userEntity2.setWebsite(userEntity.getWebsite());
-  
-  //         // 处理 AddressEntity
-  //         AddressEntity address = userEntity.getAddressEntity();
-  //         if (address == null) {
-  //             throw BusinessException.of(SysCode.INVALID_INPUT);
-  //         }
-  
-  //         // 处理 GeoEntity
-  //         GeoEntity geo = address.getGeoEntity();
-  //         if (geo != null) {
-  //             // 查找或保存 GeoEntity
-  //             GeoEntity existingGeo = this.geoRepository.findByLatitudeAndLongitude(geo.getLatitude(), geo.getLongitude());
-  //             if (existingGeo == null) {
-  //                 geo = this.geoRepository.save(geo); // 新建的 geo
-  //             } else {
-  //                 geo = existingGeo; // 使用已存在的 geo
-  //             }
-  //         }
-  
-  //         // 查找或保存 AddressEntity
-  //         AddressEntity existingAddress = this.addressRepository.findByStreetAndSuiteAndCityAndZipcode
-  //           (address.getStreet(), address.getSuite(), address.getCity(), address.getZipcode());
-  //         if (existingAddress != null) {
-  //             address = existingAddress; // 使用已存在的地址
-  //             address.getUserEntity().add(userEntity2);
-  //         } else {
-  //             geo.getAddressEntities().add(address);
-  //             address.setGeoEntity(geo);
-  //             address.getUserEntity().add(userEntity2);
-  //             address = this.addressRepository.save(address); // 确保地址被保存
-  //         }
-  
-  //         userEntity2.setAddressEntity(address); // 设置更新后的 AddressEntity
-  
-  //         // 处理 CompanyEntity
-  //         CompanyEntity companyEntity = userEntity.getCompanyEntity();
-  //         if (companyEntity != null) {
-  //             CompanyEntity existingCompany = this.companyRepository.findByNameAndCatchPhraseAndBs
-  //               (companyEntity.getName(), companyEntity.getCatchPhrase(), companyEntity.getBs());
-  //             if (existingCompany == null) {
-  //               companyEntity.getUserEntities().add(userEntity2);
-  //                 companyEntity = this.companyRepository.save(companyEntity); // 新建的 company
-  //             } else {
-  //                 companyEntity = existingCompany; // 使用已存在的公司
-  //                 companyEntity.getUserEntities().add(userEntity2);
-  //             }
-  //             userEntity2.setCompanyEntity(companyEntity);
-  //         }
-  
-  //         return this.userRepository.save(userEntity2); // 返回更新后的 userEntity
-  //     } else {
-  //         throw BusinessException.of(SysCode.USER_NOT_FOUND);
-  //     }
-  // }
 }
