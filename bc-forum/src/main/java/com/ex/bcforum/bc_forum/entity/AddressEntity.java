@@ -27,14 +27,18 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AddressEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+  @EqualsAndHashCode.Include
   private String street;
+  @EqualsAndHashCode.Include
   private String suite;
+  @EqualsAndHashCode.Include
   private String city;
+  @EqualsAndHashCode.Include
   private String zipcode;
   @ManyToOne
   @JoinColumn(name = "Geo_id")
@@ -42,7 +46,6 @@ public class AddressEntity {
   private GeoEntity geoEntity;
   @OneToMany(mappedBy = "addressEntity")
   @Setter
-  @Getter
   @JsonIgnore
   private List<UserEntity> userEntity;
 }

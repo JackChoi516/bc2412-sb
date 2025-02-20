@@ -25,14 +25,16 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GeoEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   @Column(name = "Latitude")
+  @EqualsAndHashCode.Include
   private Double latitude;
   @Column(name = "Longitude")
+  @EqualsAndHashCode.Include
   private Double longitude;
   @OneToMany(mappedBy = "geoEntity")
   @Setter
