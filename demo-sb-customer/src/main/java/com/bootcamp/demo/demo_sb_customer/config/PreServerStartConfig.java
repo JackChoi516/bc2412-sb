@@ -13,5 +13,9 @@ public class PreServerStartConfig implements CommandLineRunner{
   @Override
   public void run(String... args) throws Exception{
     System.out.println("Hello!!!");
+    // call JPH users api
+    // call JPH post api
+    // call JPH comment api
+    // save DB
   }
 }

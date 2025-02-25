@@ -14,6 +14,7 @@ import com.bootcamp.demo.demo_sb_customer.dto.mapper.UserDTOMapper;
 import com.bootcamp.demo.demo_sb_customer.model.dto.UserDto;
 import com.bootcamp.demo.demo_sb_customer.service.UserService;
 import com.bootcamp.demo.demo_sb_customer.service.impl.UserServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 public class UserController implements UserOperation {
@@ -24,7 +25,7 @@ public class UserController implements UserOperation {
   private UserDTOMapper userDTOMapper;
 
   @Override
-  public List<UserDTO> getUsers(){
+  public List<UserDTO> getUsers() throws JsonProcessingException{
     // List<UserDTO> result = this.userServiceImpl.getUsers().stream() //
     //   .map(e -> new UserDTO(e.getId(), e.getName(), e.getUsername(), e.getEmail(), //
     //     new Address(
@@ -46,7 +47,7 @@ public class UserController implements UserOperation {
   }
 
   @Override
-  public List<UserDto> createUserBy(){
+  public List<UserDto> createUserBy() throws JsonProcessingException{
     return this.userService.getUsers();
   }
 }

@@ -61,11 +61,15 @@
       <scope>runtime</scope>
     </dependency>
 		<!--scope = test, means h2 is for test only-->
-		<!-- <dependency>
+		<dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
     <scope>test</scope>
-</dependency> -->
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
 	</dependencies>
 
 	<build>

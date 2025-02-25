@@ -31,14 +31,14 @@ public class UserEntity {
   private String username;
   @Column(name = "Email")
   private String email;
-  @ManyToOne
-  @JoinColumn(name = "Address")
-  private AddressEntity addressEntity;
+  // @ManyToOne
+  // @JoinColumn(name = "Address")
+  // private AddressEntity addressEntity;
   @Column(name = "Phone")
   private String phone;
   @Column(name = "Website")
   private String website;
-  @ManyToOne
-  @JoinColumn(name = "Company")
-  private CompanyEntity companyEntity;
+  // @ManyToOne
+  // @JoinColumn(name = "Company")
+  // private CompanyEntity companyEntity;
 }
