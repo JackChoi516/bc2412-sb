@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService{
     // Java Object -> "[{}, {}, {}]" (Serialization)
     // String serializedJson = objectMapper.writeValueAsString(userDtos);
     // this.redisTemplate.opsForValue().set("jph-users", serializedJson, Duration.ofMinutes(1)); 
-    redisManager.set("jph-users", userDtos, Duration.ofMinutes(1));
+    redisManager.set("jph-users", userDtos);
 
     return userDtos;
   }

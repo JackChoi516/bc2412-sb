@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RedisManager {
+  private static final Duration DEFAULT_DURATION = Duration.ofMinutes(1);
+
   private RedisTemplate<String, String> redisTemplate;
   private ObjectMapper objectMapper;
 
@@ -31,8 +33,8 @@ public class RedisManager {
     return null;
   }
 
-  public void set(String key, Object object, Duration duration) throws JsonProcessingException{
+  public void set(String key, Object object) throws JsonProcessingException{
     String serializedJson = objectMapper.writeValueAsString(object);
-    this.redisTemplate.opsForValue().set(key, serializedJson, duration);
+    this.redisTemplate.opsForValue().set(key, serializedJson, DEFAULT_DURATION);
   }
 }
