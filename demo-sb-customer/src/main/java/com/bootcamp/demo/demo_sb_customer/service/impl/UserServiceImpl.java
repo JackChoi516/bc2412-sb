@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.bootcamp.demo.demo_sb_customer.codewave.RedisManager;
 import com.bootcamp.demo.demo_sb_customer.entity.AddressEntity;
 import com.bootcamp.demo.demo_sb_customer.entity.CompanyEntity;
 import com.bootcamp.demo.demo_sb_customer.entity.GeoEntity;
@@ -51,22 +53,31 @@ public class UserServiceImpl implements UserService{
   @Value("${api.jsonplaceholder.endpoints.users}")
   private String usersEndpoint;
 
+  // @Autowired
+  // private RedisTemplate<String, String> redisTemplate;
   @Autowired
-  private RedisTemplate<String, String> redisTemplate;
+  private RedisManager redisManager;
+  // @Autowired
+  // private RedisConnectionFactory factory;
 
 
   @Override
   public List<UserDto> getUsers() throws JsonProcessingException{
-    ObjectMapper objectMapper = new ObjectMapper();
+    // ObjectMapper objectMapper = new ObjectMapper();
     // 1. Read Redis first, if found, return users
-    // "[{}, {}, {}]"
-    String json = this.redisTemplate.opsForValue().get("jph-users");
-    // "[{}, {}, {}]" -> Java Object (Deserialization)
-    if (json != null){
-      UserDto[] userDtos = objectMapper.readValue(json, UserDto[].class);
-      return Arrays.asList(userDtos);
-    }
 
+    // // "[{}, {}, {}]"
+    // String json = this.redisTemplate.opsForValue().get("jph-users");
+    // // "[{}, {}, {}]" -> Java Object (Deserialization)
+    // if (json != null){
+    //   UserDto[] userDtos = objectMapper.readValue(json, UserDto[].class);
+    //   return Arrays.asList(userDtos);
+    // }
+
+    // RedisManager redisManager = new RedisManager(factory, new ObjectMapper());
+    if (redisManager.get("jph-users", UserDto[].class) != null){
+      return Arrays.asList(redisManager.get("jph-users", UserDto[].class));
+    }
 
     // 2. if not found, call JPH
     // String url = "https://jsonplaceholder.typicode.com/users";
@@ -113,8 +124,9 @@ public class UserServiceImpl implements UserService{
     });
     // 3. write the users back to Redis
     // Java Object -> "[{}, {}, {}]" (Serialization)
-    String serializedJson = objectMapper.writeValueAsString(userDtos);
-    this.redisTemplate.opsForValue().set("jph-users", serializedJson, Duration.ofMinutes(1));
+    // String serializedJson = objectMapper.writeValueAsString(userDtos);
+    // this.redisTemplate.opsForValue().set("jph-users", serializedJson, Duration.ofMinutes(1)); 
+    redisManager.set("jph-users", userDtos, Duration.ofMinutes(1));
 
     return userDtos;
   }
