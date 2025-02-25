@@ -1,0 +1,20 @@
+server:
+  port: 8104
+
+# spring.datasource.driverClassName
+# # spring.datasource.url
+spring.datasource:
+  driverClassName: "org.postgresql.Driver"
+  url : "jdbc:postgresql://localhost:5432/bcmtr"
+  username: "postgres"
+  password: "Lamz999*"
+
+spring.jpa:
+  show-sql: true
+  hibernate.ddl-auto: update
+
+api:
+  mtr:
+    domain: "rt.data.gov.hk"
+    endpoints:
+      getSchedule: "/v1/transport/mtr/getSchedule.php"
