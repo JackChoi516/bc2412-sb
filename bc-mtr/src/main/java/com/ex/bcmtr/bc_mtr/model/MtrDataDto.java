@@ -14,20 +14,20 @@ import lombok.Setter;
 public class MtrDataDto {
   private Integer status;
   private String message;
-  @JsonFormat(pattern = "yyyy-MM-dd H:mm:ss")
-  private LocalDateTime sys_time;
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime curr_time;
+  // @JsonFormat(pattern = "yyyy-MM-dd H:mm:ss")
+  private String sys_time;
+  // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  private String curr_time;
   private Map<String, LineStation> data;
   private String isdelay;
 
   @Getter
   @Setter
   public static class LineStation{
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime curr_time;
-    @JsonFormat(pattern = "yyyy-MM-dd H:mm:ss")
-    private LocalDateTime sys_time;
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String curr_time;
+    // @JsonFormat(pattern = "yyyy-MM-dd H:mm:ss")
+    private String sys_time;
     @JsonProperty("DOWN")
     private List<TrainData> DOWN;
     @JsonProperty("UP")
@@ -40,8 +40,8 @@ public class MtrDataDto {
     private String seq;
     private MtrStation dest;
     private String plat;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime time;
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String time;
     private String ttnt;
     private String valid;
     private String source;

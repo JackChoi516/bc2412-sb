@@ -21,8 +21,9 @@ import com.bootcamp.demo.demo_sb_helloworld.ShoppingMall.Film;
 @Controller // @GetMapping
 @ResponseBody // return JSON
 public class HelloworldController {
+
   // An API for Getting Resource
-  @GetMapping(value = "/greeting") // unique
+  @GetMapping(value = "/iphone/greeting") // unique
   public String hello(){
     return "Hello World !";
   }
