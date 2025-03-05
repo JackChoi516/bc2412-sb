@@ -1,0 +1,7 @@
+server:
+  port: 8097
+
+api:
+  calculater:
+    host: "demo-sb-customer-container:8098"
+    endpoint: "/calculate/{x}/{y}"

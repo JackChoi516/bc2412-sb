@@ -1,0 +1,29 @@
+server:
+  port: 8098
+
+# spring.datasource.driverClassName
+# spring.datasource.url
+spring.datasource:
+  driverClassName: "org.postgresql.Driver"
+  url: "jdbc:postgresql://postgres-container:5432/bc2412"
+  username: "postgres"
+  password: "admin1234"
+
+spring.jpa:
+  show-sql: true
+  hibernate.ddl-auto: update
+
+spring:
+  data:
+    redis:
+      host: redis-container
+      port: 6379
+
+# Custom Variables
+api:
+  jsonplaceholder:
+    domain: "jsonplaceholder.typicode.com"
+    endpoints:
+      users: "/users"
+
+      

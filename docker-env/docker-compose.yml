@@ -1,0 +1,55 @@
+services:
+  demo-coin-web:
+    image: demo-coin-web:1.0.0
+    container_name: demo-coin-web-container
+    build:
+      context: ./demo-coin-web
+      dockerfile: Dockerfile
+    networks:
+      - bootcamp_network
+    ports:
+      - "8197:8097"
+  
+  demo-sb-customer:
+    image: demo-sb-customer:1.0.0
+    container_name: demo-sb-customer-container
+    build:
+      context: ./demo-sb-customer
+      dockerfile: Dockerfile
+    networks:
+      - bootcamp_network
+    ports:
+      - "8198:8098"
+    depends_on:
+      - redis
+      - postgres
+  
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6479:6379"
+    networks:
+      - bootcamp_network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_DB: bc2412
+    ports:
+      - "5532:5432"
+    networks:
+      - bootcamp_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  
+networks:
+  bootcamp_network:
+    driver: bridge
