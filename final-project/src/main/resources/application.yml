@@ -1,0 +1,10 @@
+server:
+  port: 8099
+
+api:
+  yahooFinance:
+    host: "query1.finance.yahoo.com"
+    endpoints:
+      data: "/v7/finance/quote"
+      key: "/v1/test/getcrumb"
+      
