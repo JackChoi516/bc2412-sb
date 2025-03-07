@@ -12,11 +12,16 @@ import com.finance.project.final_project.service.YahooFinanceService;
 public class YahooFinanceController implements YahooFinanceOperation{
   @Autowired
   private YahooFinanceService yahooFinanceService;
+  @Autowired
+  private YahooFinanceManager yahooFinanceManager;
 
   @Override
-  public StockDataDto getStockDataDto(String symbols){
+  public StockDataDto getStockDataDto(String symbols) throws Exception{
     return this.yahooFinanceService.getStockDataDto(symbols);
   }
 
-
+  @Override
+  public String getCrumb() throws Exception{
+    return this.yahooFinanceManager.getKey();
+  }
 }

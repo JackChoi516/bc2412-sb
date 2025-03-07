@@ -15,11 +15,6 @@ public class AppConfig {
   }
 
   @Bean
-  ObjectMapper objectMapper(){
-    return new ObjectMapper();
-  }
-
-  @Bean
   YahooFinanceManager yahooFinanceManager(RestTemplate restTemplate){
     return new YahooFinanceManager(restTemplate);
   }

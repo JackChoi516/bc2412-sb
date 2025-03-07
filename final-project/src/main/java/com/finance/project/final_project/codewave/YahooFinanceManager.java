@@ -1,5 +1,5 @@
 package com.finance.project.final_project.codewave;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -8,22 +8,26 @@ import com.finance.project.final_project.model.StockDataDto;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import java.util.UUID;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+
 
 public class YahooFinanceManager {
   private RestTemplate restTemplate;
-  private StringBuilder cookieA;
-  private StringBuilder cookieB;
+  private String yahooCookie;
   private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
   public YahooFinanceManager(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
-    this.cookieA = new StringBuilder("B=12345abcdefg");
-    this.cookieB = new StringBuilder("; GUC=AQEBCAFZ....");
+    this.yahooCookie = "";
   }
 
   @Value("${api.yahooFinance.host}")
@@ -32,65 +36,67 @@ public class YahooFinanceManager {
   private String data;
   @Value("${api.yahooFinance.endpoints.key}")
   private String key;
-  @Autowired
-  private ObjectMapper objectMapper;
 
-  public StockDataDto getStockDataDto(String symbols) {
+  public StockDataDto getStockDataDto(String symbols) throws Exception{
+ 
     String url = UriComponentsBuilder.newInstance()
-        .scheme("https")
-        .host(host)
-        .path(data)
-        .queryParam("symbols", symbols)
-        .queryParam("crumb", this.getKey())
-        .build().toString();
-    System.out.println(url + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    this.setCookieA();
-    String newCookie = this.cookieA.append(this.cookieB).toString();
-    HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
-    headers.set(HttpHeaders.COOKIE, newCookie);
-    HttpEntity<String> entity = new HttpEntity<>(headers);
+    .scheme("https")
+    .host(host)
+    .path(data)
+    .queryParam("symbols", symbols)
+    .queryParam("crumb", this.getKey())
+    .build().toString();
 
+    org.springframework.http.HttpHeaders headers2 = new org.springframework.http.HttpHeaders();
+    headers2.set(org.springframework.http.HttpHeaders.USER_AGENT, USER_AGENT);
+    headers2.set(org.springframework.http.HttpHeaders.COOKIE, this.yahooCookie);
+    HttpEntity<String> entity = new HttpEntity<>(headers2);
+    
     try {
-      ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-      if (response.getStatusCode() == HttpStatus.OK) {
-        return this.objectMapper.readValue(response.getBody(), StockDataDto.class); // Crumb or required data
-      } else {
-        System.out.println("Error: " + response.getStatusCode());
-      }
-
+    ResponseEntity<StockDataDto> response2 = restTemplate.exchange(url,
+    HttpMethod.GET, entity, StockDataDto.class);
+    if (response2.getStatusCode() == HttpStatus.OK) {
+    return response2.getBody();
+    } else {
+    System.out.println("Error: " + response2.getStatusCode());
+    }
     } catch (Exception e) {
-      e.printStackTrace();
-      return null;
+    e.printStackTrace();
+    return null;
     }
     return null;
   }
 
-  private void setCookieA() {
-    String randomCookie = UUID.randomUUID().toString();
-    this.cookieA.append(randomCookie);
-    // System.out.println(randomCookie + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  }
 
-  public String getKey() {
+  public String getKey() throws Exception{
     String url = UriComponentsBuilder.newInstance().scheme("https").host(host).path(key).build().toString();
-    this.setCookieA();
-    String newCookie = this.cookieA.append(this.cookieB).toString();
-    HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
-    headers.set(HttpHeaders.COOKIE, newCookie);
+
+    String url2 = "https://fc.yahoo.com";
+    HttpClient client = java.net.http.HttpClient.newHttpClient();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(new URI(url2))
+        .header("User-Agent", "MyCustomUserAgent/1.0")
+        .build();
+    HttpResponse<String> response2 = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    HttpHeaders headers2 = response2.headers();
+
+    List<String> cookies = headers2.allValues("Set-Cookie");
+    String newCookie = cookies.get(0);
+    this.yahooCookie = newCookie;
+    System.out.println("!!!!!!!" + this.yahooCookie + "!!!!!!!!!");
+    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+    headers.set(org.springframework.http.HttpHeaders.USER_AGENT, USER_AGENT);
+    headers.set(org.springframework.http.HttpHeaders.COOKIE, newCookie);
     HttpEntity<String> entity = new HttpEntity<>(headers);
 
     try {
       ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
       if (response.getStatusCode() == HttpStatus.OK) {
-        return response.getBody(); 
+        return response.getBody();
       } else {
         System.out.println("Error: " + response.getStatusCode());
       }
-
     } catch (Exception e) {
       e.printStackTrace();
       return null;
