@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.finance.project.final_project.codewave.YahooFinanceManager;
-import com.finance.project.final_project.controller.YahooFinanceOperation;
 import com.finance.project.final_project.model.StockDataDto;
 import com.finance.project.final_project.service.YahooFinanceService;
 
@@ -14,7 +13,12 @@ public class YahooFinanceServiceImpl implements YahooFinanceService{
   private YahooFinanceManager yahooFinanceManager;
 
   @Override
-  public StockDataDto getStockDataDto(String symbols)throws Exception{
+  public StockDataDto getStockDataDto(String symbols){
     return this.yahooFinanceManager.getStockDataDto(symbols);
+  }
+
+  @Override
+  public String getCrumb(){
+    return this.yahooFinanceManager.getKey();
   }
 }
