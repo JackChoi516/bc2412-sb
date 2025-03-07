@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finance.project.final_project.codewave.CrumbManager;
 import com.finance.project.final_project.codewave.YahooFinanceManager;
 
@@ -23,6 +24,11 @@ public class AppConfig {
   // YahooFinanceManager yahooFinanceManager(RestTemplate restTemplate, CrumbManager crumbManager){
   //   return new YahooFinanceManager(restTemplate, crumbManager);
   // }
+
+  @Bean
+  ObjectMapper objectMapper(){
+    return new ObjectMapper();
+  }
 
   @Bean
   YahooFinanceManager yahooFinanceManager(RestTemplate restTemplate){

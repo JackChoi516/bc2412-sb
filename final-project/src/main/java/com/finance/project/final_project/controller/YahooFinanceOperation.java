@@ -9,7 +9,7 @@ import com.finance.project.final_project.model.StockDataDto;
 
 public interface YahooFinanceOperation {
   @GetMapping(value = "/finance")
-  String getStockDataDto(@RequestParam String symbols);
+  StockDataDto getStockDataDto(@RequestParam String symbols);
 
   ///
   @GetMapping(value = "/crumb")

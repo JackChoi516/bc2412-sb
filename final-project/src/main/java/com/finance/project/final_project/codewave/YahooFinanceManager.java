@@ -4,6 +4,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
 import org.springframework.stereotype.Component;
@@ -20,9 +21,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 // @Component
 // public class YahooFinanceManager {
@@ -79,10 +83,8 @@ public class YahooFinanceManager {
 //   private static final String COOKIE = "B=12345abcde; GUC=AQEBCAFZ...";  // 你的 Cookie
 //   private static final String COOKIE = "d=AQABBIFnyWcCEEzSE95xR1t0TfTkRIM4W28FEgEBAQG5ymfTZ2CZyyMA_eMAAA&S=AQAAAoAMEc74g6clnckoe9ltuys";  // 你的 Cookie
 //   private CookieStore cookieStore;
-  private String cookieA;
-  private String cookieB;
-  private Long appendNum;
-  private StringBuilder stringBuilder;
+  private StringBuilder cookieA;
+  private StringBuilder cookieB;
   private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
   
@@ -98,10 +100,8 @@ public class YahooFinanceManager {
 
   public YahooFinanceManager(RestTemplate restTemplate){
     this.restTemplate = restTemplate;
-    this.stringBuilder = new StringBuilder();
-    this.cookieA = "B=12345abcdefg";
-    this.cookieB = "; GUC=AQEBCAFZ....";
-    this.appendNum = 1L;
+    this.cookieA = new StringBuilder("B=12345abcdefg");
+    this.cookieB = new StringBuilder("; GUC=AQEBCAFZ....");
   }
 
   @Value("${api.yahooFinance.host}")
@@ -110,6 +110,8 @@ public class YahooFinanceManager {
   private String data;
   @Value("${api.yahooFinance.endpoints.key}")
   private String key;
+  @Autowired
+  private ObjectMapper objectMapper;
 
   // public StockDataDto getStockDataDto(String symbols){
   //   String url = UriComponentsBuilder.newInstance() //
@@ -121,7 +123,7 @@ public class YahooFinanceManager {
   //   return this.restTemplate.getForObject(url, StockDataDto.class);
   // }
 
-  public String getStockDataDto(String symbols) {
+  public StockDataDto getStockDataDto(String symbols) {
     String url = UriComponentsBuilder.newInstance()
             .scheme("https")
             .host(host)
@@ -131,29 +133,17 @@ public class YahooFinanceManager {
             .build().toString();
     // String url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=0388.HK&crumb=6bcJj3fXAtN";
     this.setCookieA();
-    String newCookie = stringBuilder.append(this.cookieA).append(this.cookieB).toString();
+    String newCookie = this.cookieA.append(this.cookieB).toString();
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
     headers.set(HttpHeaders.COOKIE, newCookie);
     HttpEntity<String> entity = new HttpEntity<>(headers);
 
-    // try {
-    //     // Simple throttle: Delay 1 second between requests
-    //     Thread.sleep(1000);
-    //     return this.restTemplate.getForObject(url, StockDataDto.class);
-    // } catch (InterruptedException e) {
-    //     Thread.currentThread().interrupt();
-    //     System.err.println("Request was interrupted");
-    // } catch (Exception e) {
-    //     e.printStackTrace();
-    // }
-    // return null;
-
     try {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
   
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody(); // Crumb or required data
+            return this.objectMapper.readValue(response.getBody(), StockDataDto.class); // Crumb or required data
         } else {
             System.out.println("Error: " + response.getStatusCode());
         }
@@ -165,18 +155,17 @@ public class YahooFinanceManager {
     return null;
 }
 
-private void setAppend(){
-  this.appendNum += 1L;
-}
+
 private void setCookieA(){
-  this.setAppend();
-  this.cookieA = this.stringBuilder.append(this.cookieA).append(this.appendNum).toString();
-  System.out.println(this.cookieA + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  // this.setAppend();
+  String randomCookie = UUID.randomUUID().toString();
+  this.cookieA.append(randomCookie);
+  System.out.println(randomCookie + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 public String getKey() {
   String url = "https://query1.finance.yahoo.com/v1/test/getcrumb";
   this.setCookieA();
-  String newCookie = stringBuilder.append(this.cookieA).append(this.cookieB).toString();
+  String newCookie = this.cookieA.append(this.cookieB).toString();
   HttpHeaders headers = new HttpHeaders();
   headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
   headers.set(HttpHeaders.COOKIE, newCookie);

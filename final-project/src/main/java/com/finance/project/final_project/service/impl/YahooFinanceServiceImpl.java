@@ -14,7 +14,7 @@ public class YahooFinanceServiceImpl implements YahooFinanceService{
   private YahooFinanceManager yahooFinanceManager;
 
   @Override
-  public String getStockDataDto(String symbols){
+  public StockDataDto getStockDataDto(String symbols){
     return this.yahooFinanceManager.getStockDataDto(symbols);
   }
 }

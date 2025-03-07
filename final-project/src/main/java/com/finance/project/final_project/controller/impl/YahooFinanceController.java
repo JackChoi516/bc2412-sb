@@ -20,7 +20,7 @@ public class YahooFinanceController implements YahooFinanceOperation{
   private YahooFinanceManager yahooFinanceManager;
 
   @Override
-  public String getStockDataDto(String symbols){
+  public StockDataDto getStockDataDto(String symbols){
     return this.yahooFinanceService.getStockDataDto(symbols);
   }
 
