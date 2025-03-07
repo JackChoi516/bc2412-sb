@@ -2,6 +2,8 @@ package com.finance.project.final_project.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +28,7 @@ public class StockDataDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Result {
       private String language;
       private String region;
@@ -61,6 +64,8 @@ public class StockDataDto {
       private Integer bidSize;
       private Integer askSize;
       private String fullExchangeName;
+      private String prevName;
+      private String nameChangeDate;
       private String financialCurrency;
       private Double regularMarketOpen;
       private Long averageDailyVolume3Month;

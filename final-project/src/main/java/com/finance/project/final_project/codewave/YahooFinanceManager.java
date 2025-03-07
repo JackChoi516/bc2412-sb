@@ -43,7 +43,7 @@ public class YahooFinanceManager {
         .queryParam("symbols", symbols)
         .queryParam("crumb", this.getKey())
         .build().toString();
-
+    System.out.println(url + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     this.setCookieA();
     String newCookie = this.cookieA.append(this.cookieB).toString();
     HttpHeaders headers = new HttpHeaders();
