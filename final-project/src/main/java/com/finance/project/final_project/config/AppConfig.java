@@ -6,13 +6,18 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.finance.project.final_project.codewave.RedisManager;
 import com.finance.project.final_project.codewave.YahooFinanceManager;
 
 @Configuration
 public class AppConfig {
 
+  // YahooFinanceManager
   @Bean
   CookieStore cookieStore(){
     return new BasicCookieStore();
@@ -37,4 +42,16 @@ public class AppConfig {
   YahooFinanceManager yahooFinanceManager(RestTemplate restTemplate, CookieStore cookieStore){
     return new YahooFinanceManager(restTemplate, cookieStore);
   }
+
+  // RedisManager
+  @Bean
+  ObjectMapper objectMapper(){
+    return new ObjectMapper();
+  }
+
+  @Bean
+  RedisManager redisManager(RedisConnectionFactory factory, ObjectMapper objectMapper){
+    return new RedisManager(factory, objectMapper);
+  }
+
 }

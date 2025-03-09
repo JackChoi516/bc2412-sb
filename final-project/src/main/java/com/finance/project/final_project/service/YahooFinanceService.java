@@ -1,8 +1,8 @@
 package com.finance.project.final_project.service;
 
-import com.finance.project.final_project.model.StockDataDto;
+import com.finance.project.final_project.model.QuoteDataDto;
 
 public interface YahooFinanceService {
-  StockDataDto getStockDataDto(String symbols);
+  QuoteDataDto getQuoteDataDto(String symbols);
   String getCrumb();
 }

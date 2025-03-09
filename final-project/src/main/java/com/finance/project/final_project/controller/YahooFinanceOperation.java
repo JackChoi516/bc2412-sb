@@ -2,11 +2,11 @@ package com.finance.project.final_project.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.finance.project.final_project.model.StockDataDto;
+import com.finance.project.final_project.model.QuoteDataDto;
 
 public interface YahooFinanceOperation {
-  @GetMapping(value = "/finance")
-  StockDataDto getStockDataDto(@RequestParam String symbols) throws Exception;
+  @GetMapping(value = "/quote")
+  QuoteDataDto getQuoteDataDto(@RequestParam String symbols) throws Exception;
 
   @GetMapping(value = "/crumb")
   String getCrumb();

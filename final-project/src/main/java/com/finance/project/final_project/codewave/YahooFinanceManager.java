@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.HttpHeaders;
-import com.finance.project.final_project.model.StockDataDto;
+import com.finance.project.final_project.model.QuoteDataDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -12,7 +12,8 @@ import org.springframework.http.HttpMethod;
 public class YahooFinanceManager {
   private RestTemplate restTemplate;
   private CookieStore cookieStore;
-  private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  private static final String USER_AGENT = //
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
   private HttpHeaders headers;
   private HttpEntity<String> entity;
 
@@ -31,26 +32,27 @@ public class YahooFinanceManager {
   @Value("${api.yahooFinance.endpoints.key}")
   private String key;
 
-  public StockDataDto getStockDataDto(String symbols){
+  public QuoteDataDto getQuoteDataDto(String symbols){
  
     String url = UriComponentsBuilder.newInstance()
     .scheme("https")
     .host(host)
     .path(data)
     .queryParam("symbols", symbols)
-    .queryParam("crumb", this.getKey())
+    .queryParam("crumb", this.getCrumb())
     .build().toString();
     
-    ResponseEntity<StockDataDto> response = restTemplate //
-      .exchange(url, HttpMethod.GET, entity, StockDataDto.class);
+    ResponseEntity<QuoteDataDto> response = restTemplate //
+      .exchange(url, HttpMethod.GET, entity, QuoteDataDto.class);
 
     cookieStore.clear();
     return response.getBody();
   }
 
 
-  public String getKey(){
-    String url = UriComponentsBuilder.newInstance().scheme("https").host(host).path(key).build().toString();
+  public String getCrumb(){
+    String url = UriComponentsBuilder.newInstance() //
+      .scheme("https").host(host).path(key).build().toString();
 
     cookieStore.clear();
     String url2 = "https://fc.yahoo.com";

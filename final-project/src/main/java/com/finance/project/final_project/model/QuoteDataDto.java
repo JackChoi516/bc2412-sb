@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StockDataDto {
+public class QuoteDataDto {
   private QuoteResponse quoteResponse;
 
   @Getter
