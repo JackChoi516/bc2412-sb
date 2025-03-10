@@ -9,6 +9,7 @@ import com.finance.project.final_project.service.StockDataService;
 
 @Component
 public class ScheduleConfig {
+  
   @Autowired
   private StockDataService stockDataService;
   
