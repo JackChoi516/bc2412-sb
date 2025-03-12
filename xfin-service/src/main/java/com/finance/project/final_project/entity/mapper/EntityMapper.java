@@ -17,7 +17,8 @@ public class EntityMapper {
         .type("") //
         .apiDateTime(ZonedDateTime.now()) //
         .symbol("") //
-        .regularMarketTime(
+        .regularMarketTime(quoteData.getQuoteResponse().getResult().get(0).getRegularMarketTime()) //
+        .marketTimeWithZone(
         ZonedDateTime.ofInstant(
           Instant.ofEpochSecond(quoteData.getQuoteResponse().getResult().get(0).getRegularMarketTime())
         , ZoneId.systemDefault())

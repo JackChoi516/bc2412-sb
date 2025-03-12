@@ -30,7 +30,8 @@ public class TStockPriceEntity {
   private ZonedDateTime apiDateTime;
   @Setter
   private String symbol;
-  private ZonedDateTime regularMarketTime;
+  private Long regularMarketTime;
+  private ZonedDateTime marketTimeWithZone;
   private Double regularMarketPrice;
   private Double regularMarketChangePercent;
   private Double bid;
