@@ -1,6 +1,7 @@
 package com.finance.project.final_project.controller.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.controller.StockDataOeration;
 import com.finance.project.final_project.dto.FiveMinDataDTO;
-import com.finance.project.final_project.dto.StockListDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.service.StockDataService;
 
@@ -19,7 +19,7 @@ public class StockDataController implements StockDataOeration{
   private StockDataService stockDataService;
 
   @Override
-  public StockListDTO getStockLists() throws JsonProcessingException{
+  public Map<String, List<String>> getStockLists() throws JsonProcessingException{
     return this.stockDataService.getStockLists();
   }
 

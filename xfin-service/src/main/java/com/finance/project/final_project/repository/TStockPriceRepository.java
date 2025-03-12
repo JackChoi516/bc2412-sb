@@ -15,6 +15,6 @@ import com.finance.project.final_project.entity.TStockPriceEntity;
 public interface TStockPriceRepository extends JpaRepository<TStockPriceEntity, Long>{
   Optional<TStockPriceEntity> findTopBySymbolOrderByRegularMarketTimeDesc(String symbol);
 
-  @Query("SELECT sp FROM TStockPriceEntity sp WHERE FUNCTION('DATE', sp.regularMarketTime) = :date AND sp.symbol = :symbol")
+  @Query("SELECT sp FROM TStockPriceEntity sp WHERE FUNCTION('DATE', sp.marketTimeWithZone) = :date AND sp.symbol = :symbol")
   List<TStockPriceEntity> findByDateAndSymbol(@Param("date") LocalDate date, @Param("symbol") String symbol);
 }

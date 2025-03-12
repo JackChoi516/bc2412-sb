@@ -32,7 +32,7 @@ public class FiveMinDataDTO {
     @Getter
     public static class QuoteData {
       private String symbol;
-      private String regularMarketTime;
+      private Long regularMarketTime;
       private Double regularMarketPrice;
       private Double regularMarketChangePercent;
     }

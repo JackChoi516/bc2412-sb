@@ -30,7 +30,7 @@ public class DTOMapper {
     FiveMinDataDTO.TimeAndData.QuoteData data = //
       FiveMinDataDTO.TimeAndData.QuoteData.builder() //
       .symbol(entity.getSymbol()) //
-      .regularMarketTime(entity.getMarketTimeWithZone().withZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))) //
+      .regularMarketTime(entity.getRegularMarketTime()) //
       .regularMarketPrice(entity.getRegularMarketPrice()) //
       .regularMarketChangePercent(entity.getRegularMarketChangePercent()) //
       .build();
