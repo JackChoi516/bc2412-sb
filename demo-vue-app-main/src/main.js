@@ -1,5 +1,6 @@
 import { createApp } from "vue";
-import App from "./components/App.vue";
+import App from "./App.vue";
+import router from './router'; 
 import "./components/assets/tailwind.css";
 // fontawesome
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -13,6 +14,7 @@ library.add(faCaretUp, faCaretDown, faSearch);
 
 const app = createApp(App);
 app.component("fa", FontAwesomeIcon);
+app.use(router);
 app.mount("#app");
 
 // custom filter
