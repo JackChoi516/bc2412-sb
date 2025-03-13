@@ -133,41 +133,11 @@ public class StockDataServiceImpl implements StockDataService {
   }
 
 
-
-  /////////////////////////////////////
   @Override
   public FiveMinDataDTO getFiveMinData(String symbol) throws JsonProcessingException {
-    // FiveMinDataDTO redisData = this.redisManager.get("5MIN-" + symbol, FiveMinDataDTO.class);
-    // if (redisData != null) {
-    //   return redisData;
-    // }
-    // Optional<TStockPriceEntity> latestEntity = this.tStockPriceRepository
-    //     .findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
-    // Long latestTime = null;
-    // if (latestEntity.isPresent()) {
-    //   latestTime = latestEntity.get().getRegularMarketTime();
-    // }
-    // System.out.println(latestTime + "!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    // List<TStockPriceEntity> fiveMinEntities = //
-    //     this.tStockPriceRepository
-    //         .findByDateAndSymbol(LocalDate.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()), symbol);
-
-    // List<FiveMinDataDTO.TimeAndData.TStockPriceDTO> datas = //
-    //     fiveMinEntities.stream().map(e -> this.dtoMapper.map(e)).collect(Collectors.toList());
-
-    // FiveMinDataDTO.TimeAndData timeAndData = //
-    //     FiveMinDataDTO.TimeAndData.builder() //
-    //         .regularMarketTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()).toString()) //
-    //         .data(datas).build();
-
-    // Map<String, FiveMinDataDTO.TimeAndData> dataRetrieved = new HashMap<>();
-    // dataRetrieved.put("5MIN-" + symbol, timeAndData);
-
-    // FiveMinDataDTO result = FiveMinDataDTO.builder().dataRetrieved(dataRetrieved).build();
-    // this.redisManager.set("5MIN-" + symbol, result, Duration.ofHours(12));
-
-    // return result;
-    return null;
+    List<TStockPriceEntity> entities = this.getFiveMinList(symbol);
+    FiveMinDataDTO result = this.dtoMapper.map(entities);
+    return result;
   }
 
   // latestTime.toLocalTime().isAfter(LocalTime.of(16,0))&&Instant.ofEpochSecond(quote

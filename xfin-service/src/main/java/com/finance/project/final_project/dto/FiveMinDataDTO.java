@@ -1,8 +1,12 @@
 package com.finance.project.final_project.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -16,36 +20,46 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-// @JsonIgnoreProperties(ignoreUnknown = true)
 public class FiveMinDataDTO {
-  private Map<String, TimeAndData> dataRetrieved;
+  @Setter
+  private Long currentRegularMarketTime;
+  @Setter
+  private LocalDateTime convertedDateTime;
+  @Setter
+  private String symbol;
+  private List<TStockPriceDTO> tStockPrices;
 
   @Builder
   @AllArgsConstructor
   @NoArgsConstructor
   @Getter
-  public static class TimeAndData {
-    private String regularMarketTime;
-    private List<TStockPriceDTO> data;
-    private List<Double> SMAFiveMins;
-
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    public static class TStockPriceDTO {
-      private String type;
-      private ZonedDateTime apiDateTime;
-      @Setter
-      private String symbol;
-      private Long regularMarketTime;
-      private ZonedDateTime marketTimeWithZone;
-      private Double regularMarketPrice;
-      private Double regularMarketChangePercent;
-      private Double bid;
-      private Integer bidSize;
-      private Double ask;
-      private Integer askSize;
+  public static class TStockPriceDTO {
+    private String type;
+    private ZonedDateTime apiDateTime;
+    private String symbol;
+    private Long regularMarketTime;
+    private ZonedDateTime marketTimeWithZone;
+    private Double regularMarketPrice;
+    private Double regularMarketChangePercent;
+    @Setter
+    private Double SMAFiveMins;
+  }
+  public Double calculateSMAWithFive (){
+    if (this.tStockPrices.size() > 5){
+      int size = this.tStockPrices.size();
+        List<Double> lastFivePrices = //
+          this.tStockPrices.subList(Math.max(size - 5, 0), size) //
+          .stream().map(e -> e.getRegularMarketPrice())
+          .collect(Collectors.toList());
+      Double total = 0.0;
+      for (Double price : lastFivePrices){
+        total = BigDecimal.valueOf(total).add(BigDecimal.valueOf(price)).doubleValue();
+      }
+      Double result = //
+        BigDecimal.valueOf(total) //
+        .divide(BigDecimal.valueOf(5.0), 2, RoundingMode.UP).doubleValue();
+      return result;
     }
+    return null;
   }
 }
