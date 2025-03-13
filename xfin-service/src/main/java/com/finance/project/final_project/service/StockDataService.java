@@ -12,4 +12,5 @@ public interface StockDataService {
   void saveQuoteData5M() throws JsonProcessingException;
   FiveMinDataDTO getFiveMinData(String symbol) throws JsonProcessingException;
   List<TStockPriceEntity> getFiveMinList(String symbol) throws JsonProcessingException;
+  
 }

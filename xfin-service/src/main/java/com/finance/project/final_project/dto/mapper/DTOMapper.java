@@ -1,34 +1,14 @@
 package com.finance.project.final_project.dto.mapper;
 
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 import org.springframework.stereotype.Component;
 import com.finance.project.final_project.dto.FiveMinDataDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
-import com.finance.project.final_project.model.QuoteDataDto;
 
 @Component
 public class DTOMapper {
-  // public FiveMinListDTO map(QuoteDataDto quote){
-  //   return FiveMinListDTO.builder() //
-  //     .symbol(quote.getQuoteResponse().getResult().get(0).getSymbol()) //
-  //     .regularMarketTime(
-  //        ZonedDateTime.ofInstant(
-  //         Instant.ofEpochSecond(quote.getQuoteResponse().getResult().get(0).getRegularMarketTime())
-  //       , ZoneId.systemDefault()).toString()
-  //       ) //
-  //     .regularMarketPrice(quote.getQuoteResponse().getResult().get(0).getRegularMarketPrice()) //
-  //     .regularMarketChangePercent(quote.getQuoteResponse().getResult().get(0).getRegularMarketChangePercent()) //
-  //     .build();
-  // }
-
-  public FiveMinDataDTO.TimeAndData.QuoteData map(TStockPriceEntity entity){
-    FiveMinDataDTO.TimeAndData.QuoteData data = //
-      FiveMinDataDTO.TimeAndData.QuoteData.builder() //
+  public FiveMinDataDTO.TimeAndData.TStockPriceDTO map(TStockPriceEntity entity){
+    FiveMinDataDTO.TimeAndData.TStockPriceDTO data = //
+      FiveMinDataDTO.TimeAndData.TStockPriceDTO.builder() //
       .symbol(entity.getSymbol()) //
       .regularMarketTime(entity.getRegularMarketTime()) //
       .regularMarketPrice(entity.getRegularMarketPrice()) //

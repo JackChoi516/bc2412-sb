@@ -53,7 +53,7 @@ public class StockDataServiceImpl implements StockDataService {
   public Map<String, List<String>> getStockLists() throws JsonProcessingException {
     Map<String, List<String>> result = new HashMap<>();
     String[] dataResult = this.redisManager.get("stock-lists", String[].class);
-    if (dataResult != null) {
+    if (dataResult != null && dataResult.length != 0) {
       result.put("stock-lists", Arrays.asList(dataResult));
       return result;
     }
@@ -69,10 +69,12 @@ public class StockDataServiceImpl implements StockDataService {
     List<String> stockLists = null;
     try {
       stockLists = Arrays.asList(this.redisManager.get("stock-lists", String[].class));
-    } catch (NullPointerException e) {
-      System.out.println("No stock lists.");
+    } catch (NullPointerException ex) {
+      System.out.println("No stock lists in cache.");
+      stockLists = this.getStockLists().get("stock-lists");
+      System.out.println("Stock lists called in 5min method.");
     }
-
+    
     if (stockLists != null) {
       for (String symbol : stockLists) {
         QuoteDataDto quote = //
@@ -94,7 +96,7 @@ public class StockDataServiceImpl implements StockDataService {
           quote.getQuoteResponse().getResult().get(0).getRegularMarketTime();
 
         if (quote.getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")
-          && quoteTimeNow >latestTime
+          && quoteTimeNow > latestTime
           ) {
           TStockPriceEntity TStockPrice = this.entityMapper.map(quote);
           TStockPrice.setSymbol(symbol);
@@ -130,38 +132,42 @@ public class StockDataServiceImpl implements StockDataService {
     return databaseData;
   }
 
+
+
+  /////////////////////////////////////
   @Override
   public FiveMinDataDTO getFiveMinData(String symbol) throws JsonProcessingException {
-    FiveMinDataDTO redisData = this.redisManager.get("5MIN-" + symbol, FiveMinDataDTO.class);
-    if (redisData != null) {
-      return redisData;
-    }
-    Optional<TStockPriceEntity> latestEntity = this.tStockPriceRepository
-        .findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
-    Long latestTime = null;
-    if (latestEntity.isPresent()) {
-      latestTime = latestEntity.get().getRegularMarketTime();
-    }
-    System.out.println(latestTime + "!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    List<TStockPriceEntity> fiveMinEntities = //
-        this.tStockPriceRepository
-            .findByDateAndSymbol(LocalDate.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()), symbol);
+    // FiveMinDataDTO redisData = this.redisManager.get("5MIN-" + symbol, FiveMinDataDTO.class);
+    // if (redisData != null) {
+    //   return redisData;
+    // }
+    // Optional<TStockPriceEntity> latestEntity = this.tStockPriceRepository
+    //     .findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
+    // Long latestTime = null;
+    // if (latestEntity.isPresent()) {
+    //   latestTime = latestEntity.get().getRegularMarketTime();
+    // }
+    // System.out.println(latestTime + "!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    // List<TStockPriceEntity> fiveMinEntities = //
+    //     this.tStockPriceRepository
+    //         .findByDateAndSymbol(LocalDate.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()), symbol);
 
-    List<FiveMinDataDTO.TimeAndData.QuoteData> datas = //
-        fiveMinEntities.stream().map(e -> this.dtoMapper.map(e)).collect(Collectors.toList());
+    // List<FiveMinDataDTO.TimeAndData.TStockPriceDTO> datas = //
+    //     fiveMinEntities.stream().map(e -> this.dtoMapper.map(e)).collect(Collectors.toList());
 
-    FiveMinDataDTO.TimeAndData timeAndData = //
-        FiveMinDataDTO.TimeAndData.builder() //
-            .regularMarketTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()).toString()) //
-            .data(datas).build();
+    // FiveMinDataDTO.TimeAndData timeAndData = //
+    //     FiveMinDataDTO.TimeAndData.builder() //
+    //         .regularMarketTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()).toString()) //
+    //         .data(datas).build();
 
-    Map<String, FiveMinDataDTO.TimeAndData> dataRetrieved = new HashMap<>();
-    dataRetrieved.put("5MIN-" + symbol, timeAndData);
+    // Map<String, FiveMinDataDTO.TimeAndData> dataRetrieved = new HashMap<>();
+    // dataRetrieved.put("5MIN-" + symbol, timeAndData);
 
-    FiveMinDataDTO result = FiveMinDataDTO.builder().dataRetrieved(dataRetrieved).build();
-    this.redisManager.set("5MIN-" + symbol, result, Duration.ofHours(12));
+    // FiveMinDataDTO result = FiveMinDataDTO.builder().dataRetrieved(dataRetrieved).build();
+    // this.redisManager.set("5MIN-" + symbol, result, Duration.ofHours(12));
 
-    return result;
+    // return result;
+    return null;
   }
 
   // latestTime.toLocalTime().isAfter(LocalTime.of(16,0))&&Instant.ofEpochSecond(quote
