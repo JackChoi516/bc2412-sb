@@ -8,7 +8,7 @@
     </div>
 
     <!-- Use v-if to ensure chart is only rendered once data is available -->
-    <apexchart v-if="!isLoading && chartData.length" type="line" :options="chartOptions" :series="chartSeries" ref="chart"></apexchart>
+    <apexchart v-if="!isLoading && chartData.length" type="line" :options="chartOptions" :series="chartSeries" ref="chart" class="chart-container"></apexchart>
     <p v-else>Loading chart data...</p>
   </div>
 </template>
@@ -42,6 +42,15 @@ export default {
       },
       annotations: {
         xaxis: [], // Placeholder for x-axis annotations
+        yaxis: [], // Placeholder for y-axis annotations
+        position: 'front', // Place annotations above the chart
+        fontSize: '14px',
+        fontFamily: 'Arial, sans-serif',
+        fontWeight: 'bold',
+        borderColor: '#FF9800', // Set border color for annotation box
+        borderWidth: 2,
+        fillColor: '#FF9800', // Set background color for annotation box
+        opacity: 0.5,
       },
       title: {
         text: '',  // Will be updated dynamically
@@ -56,19 +65,6 @@ export default {
     const showSMA = ref(false);  // Flag to control the visibility of the SMA line
     const chartRef = ref(null);   // Reference for the chart component
 
-    // Function to convert Unix timestamp to a human-readable date format (YYYY-MM-DD)
-    const convertToDate = (timestamp) => {
-      if (!timestamp || isNaN(timestamp)) {
-        console.warn(`Invalid timestamp: ${timestamp}`);
-        return '';  // Return an empty string for invalid timestamps
-      }
-      const date = new Date(timestamp * 1000);  // Convert to milliseconds
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');  // Ensure 2 digits
-      const day = String(date.getDate()).padStart(2, '0');  // Ensure 2 digits
-      return `${year}-${month}-${day}`;  // Return date in YYYY-MM-DD format
-    };
-
     // Function to convert Unix timestamp to a human-readable time format (HH:MM:SS)
     const convertToTime = (timestamp) => {
       if (!timestamp || isNaN(timestamp)) {
@@ -79,7 +75,20 @@ export default {
       const hours = String(date.getHours()).padStart(2, '0');  // Ensure 2 digits
       const minutes = String(date.getMinutes()).padStart(2, '0');  // Ensure 2 digits
       const seconds = String(date.getSeconds()).padStart(2, '0');  // Ensure 2 digits
-      return `${hours}:${minutes}:${seconds}`;  // Return time in HH:MM:SS format
+      return `${hours}:${minutes}`;  // Return time in HH:MM: format
+    };
+
+    // Function to format date as YYYY-MM-DD
+    const formatDate = (timestamp) => {
+      if (!timestamp || isNaN(timestamp)) {
+        console.warn(`Invalid timestamp: ${timestamp}`);
+        return '';  // Return an empty string for invalid timestamps
+      }
+      const date = new Date(timestamp * 1000); // Convert timestamp to Date
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero if month < 10
+      const day = String(date.getDate()).padStart(2, '0'); // Add leading zero if day < 10
+      return `${year}-${month}-${day}`; // Return in YYYY-MM-DD format
     };
 
     // Fetch data from the API
@@ -90,9 +99,6 @@ export default {
         const fetchedData = await response.json();  // Get the response data
         const data = fetchedData.tstockPrices;  // Get the stock prices
         const currentRegularMarketTime = fetchedData.currentRegularMarketTime; // Get currentRegularMarketTime
-
-        // Log the fetched data for debugging
-        console.log("Fetched Data:", fetchedData);
 
         // Check if data is valid and not empty
         if (data && data.length) {
@@ -107,27 +113,33 @@ export default {
           }];
 
           // Convert regularMarketTime to a human-readable time format (HH:MM:SS)
-          chartOptions.value.xaxis.categories = data.map(item => convertToTime(item.regularMarketTime));
+          // chartOptions.value.xaxis.categories = data.map(item => convertToTime(item.regularMarketTime));
+          ////
+          // Adjust the logic to show every other timestamp if the data length is more than 20
+        chartOptions.value.xaxis.categories = data.map((item, index) => {
+        // If data length is greater than 20, show only every second timestamp
+        if (data.length > 20 && index % 2 === 0) {
+            return convertToTime(item.regularMarketTime);
+        }
+        // Otherwise, return an empty string for the timestamp
+        return '';
+        });
+        ///
+          // Format the currentRegularMarketTime to YYYY-MM-DD
+          const formattedDate = formatDate(currentRegularMarketTime);
 
-          // Convert the currentRegularMarketTime to a readable date for annotation
-          const dateUnderChart = convertToDate(currentRegularMarketTime);
-
-          // Set the annotation to the top-right (customize this based on the chart area)
+          // Set the annotation for the currentRegularMarketTime (top-right)
           chartOptions.value.annotations.xaxis.push({
-            x: data[data.length - 1].regularMarketTime,  // Position on the X-axis (use the last timestamp for the date)
-            y: Math.max(...data.map(item => item.regularMarketPrice)) + 5, // Position on the Y-axis (just above the highest point)
-            borderColor: '#FF4560', // Color of the border
+            x: data[data.length - 1].regularMarketTime,  // Position on the X-axis (last time in the data)
+            y: Math.max(...data.map(item => item.regularMarketPrice)),  // Position on the Y-axis (max price)
             label: {
-              text: dateUnderChart,
+              text: formattedDate,  // Add formatted date as label
               style: {
-                fontSize: '14px', // Font size of the label
-                color: '#333', // Text color
-                background: 'transparent',  // Transparent background
+                fontSize: '14px',
+                color: '#333',
+                background: 'transparent',
                 fontWeight: 'normal',
-                border: 'none',
-                padding: 5,
-                textAlign: 'right',  // Align text to the right (top-right)
-                transform: 'none',  // Ensure horizontal text
+                textAlign: 'right',
               },
             },
           });
@@ -135,7 +147,7 @@ export default {
           // If SMA data is available and showSMA is true, add it to the chart
           if (showSMA.value) {
             // Map the smaFiveMins field into the SMA series
-            const smaData = data.map(item => item.smafiveMins !== null ? item.smafiveMins : null); // Only show valid SMA points
+            const smaData = data.map(item => item.SMAFiveMins !== null ? item.SMAFiveMins : null); // Only show valid SMA points
 
             chartSeries.value.push({
               name: '5-Min SMA',
@@ -143,7 +155,10 @@ export default {
               type: 'line',  // Set the type to line for the SMA
               color: '#FF9800',  // Set a distinct color for the SMA line
               width: 2,  // Set the line width
-              dashArray: 4,  // Optional: dashed line for better visual separation
+              stroke: {
+                width: 2,  // Line width
+                dashArray: 5,  // Create a dotted line effect
+              },
             });
           } else {
             // If SMA is not checked, remove the SMA series
@@ -154,7 +169,7 @@ export default {
           if (chartRef.value) {
             const chart = chartRef.value.chart; // Access the ApexChart instance
             if (chart) {
-              chart.updateSeries(chartSeries.value);
+              chart.updateSeries(chartSeries.value);  // Update the chart series only
             }
           }
         }
@@ -164,11 +179,6 @@ export default {
         isLoading.value = false;  // Set loading state to false after fetching completes
       }
     };
-
-    // Watch for changes in the checkbox to toggle SMA visibility
-    watch(showSMA, () => {
-      fetchData();  // Re-fetch data to update the series based on checkbox state
-    });
 
     // Call fetchData when the component is mounted
     onMounted(() => {
@@ -196,5 +206,9 @@ export default {
 </script>
 
 <style scoped>
-/* Optional styling for your chart container */
+.chart-container {
+  width: 65%;  /* Adjust width of the chart */
+  height: 300px;  /* Adjust height */
+  margin: 0 auto;  /* Center the chart */
+}
 </style>
