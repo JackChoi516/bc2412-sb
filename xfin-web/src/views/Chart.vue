@@ -5,6 +5,8 @@
       <label for="showSMA">
         <input type="checkbox" id="showSMA" v-model="showSMA" /> Show Simple Moving Average
       </label>
+      <!-- Enter button to toggle SMA visibility -->
+      <button @click="onEnterClicked">Enter</button>
     </div>
 
     <!-- Use v-if to ensure chart is only rendered once data is available -->
@@ -14,7 +16,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router'; 
 import ApexCharts from 'vue3-apexcharts';
 
@@ -64,6 +66,9 @@ export default {
 
     const showSMA = ref(false);  // Flag to control the visibility of the SMA line
     const chartRef = ref(null);   // Reference for the chart component
+    const enterClicked = ref(false); // New flag to track if "Enter" button is clicked
+
+    
 
     // Function to convert Unix timestamp to a human-readable time format (HH:MM:SS)
     const convertToTime = (timestamp) => {
@@ -74,8 +79,7 @@ export default {
       const date = new Date(timestamp * 1000);  // Convert to milliseconds
       const hours = String(date.getHours()).padStart(2, '0');  // Ensure 2 digits
       const minutes = String(date.getMinutes()).padStart(2, '0');  // Ensure 2 digits
-      const seconds = String(date.getSeconds()).padStart(2, '0');  // Ensure 2 digits
-      return `${hours}:${minutes}`;  // Return time in HH:MM:SS format
+      return `${hours}:${minutes}`;  // Return time in HH:MM format
     };
 
     // Function to format date as YYYY-MM-DD
@@ -99,7 +103,7 @@ export default {
         const fetchedData = await response.json();  // Get the response data
         const data = fetchedData.tstockPrices;  // Get the stock prices
         const currentRegularMarketTime = fetchedData.currentRegularMarketTime; // Get currentRegularMarketTime
-
+        
         // Check if data is valid and not empty
         if (data && data.length) {
           // Update chart title dynamically with the symbol
@@ -114,7 +118,9 @@ export default {
 
           // Adjust x-axis categories to show every other timestamp if the data length is greater than 20
           chartOptions.value.xaxis.categories = data.map((item, index) => {
-            if (data.length > 20 && data.length <= 30 && index % 2 === 0 || index == data.length - 1) {
+            if (data.length <= 20){
+              return convertToTime(item.regularMarketTime);
+            } else if (data.length > 20 && data.length <= 30 && index % 2 === 0 || index == data.length - 1) {
               return convertToTime(item.regularMarketTime);  // Only show even-indexed timestamps
             } else if (data.length > 30 && index % 4 == 0 || index == data.length - 1){
               return convertToTime(item.regularMarketTime);
@@ -142,7 +148,7 @@ export default {
           });
 
           // If SMA data is available and showSMA is true, add it to the chart
-          if (showSMA.value) {
+          if (enterClicked.value && showSMA.value) {
             const smaData = data.map(item => item.SMAFiveMins !== null ? item.SMAFiveMins : null);  // Only show valid SMA points
 
             chartSeries.value.push({
@@ -154,6 +160,7 @@ export default {
               stroke: {
                 width: 2,  // Line width
                 dashArray: 5,  // Create a dotted line effect
+                curve: 'smooth',
               },
             });
           } else {
@@ -173,6 +180,12 @@ export default {
       } finally {
         isLoading.value = false;  // Set loading state to false after fetching completes
       }
+    };
+
+    // Function to handle the "Enter" button click
+    const onEnterClicked = () => {
+      enterClicked.value = true; // Set the enterClicked flag to true when the "Enter" button is clicked
+      fetchData(); // Re-fetch data to ensure the chart updates with SMA line
     };
 
     // Call fetchData when the component is mounted
@@ -195,6 +208,8 @@ export default {
       isLoading,
       showSMA,  // Return the showSMA flag to bind with the checkbox
       chartRef, // Return chartRef to be used in the template
+      enterClicked, // Return the enterClicked flag
+      onEnterClicked, // Return the method to handle button click
     };
   },
 };

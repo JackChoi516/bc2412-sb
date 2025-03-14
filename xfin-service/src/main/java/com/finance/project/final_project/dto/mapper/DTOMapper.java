@@ -1,5 +1,8 @@
 package com.finance.project.final_project.dto.mapper;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +28,14 @@ public class DTOMapper {
               .regularMarketPrice(entity.getRegularMarketPrice()) //
               .regularMarketChangePercent(entity.getRegularMarketChangePercent()) //
               .build();
-      result.getTStockPrices().add(tStockDTO);
       tStockDTO.setSMAFiveMins(result.calculateSMAWithFive());
+      result.getTStockPrices().add(tStockDTO);
     }
     int lastIdx = entities.size() - 1;
     result.setSymbol(entities.get(lastIdx).getSymbol());
-    result.setConvertedDateTime(
-      entities.get(lastIdx).getMarketTimeWithZone().toLocalDateTime());
+    result.setConvertedMarketTime(
+      LocalDateTime.ofInstant(Instant.ofEpochSecond(entities.get(lastIdx).getRegularMarketTime()), ZoneId.systemDefault())
+      );
     result.setCurrentRegularMarketTime(entities.get(lastIdx).getRegularMarketTime());
     return result;
   }

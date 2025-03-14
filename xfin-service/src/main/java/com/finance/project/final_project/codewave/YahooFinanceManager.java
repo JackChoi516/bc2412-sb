@@ -30,7 +30,9 @@ public class YahooFinanceManager {
   @Value("${api.yahooFinance.endpoints.data}")
   private String data;
   @Value("${api.yahooFinance.endpoints.key}")
-  private String crumEndpoint;
+  private String crumbEndpoint;
+  @Value("${api.yahooFinance.endpoints.ohlc}")
+  private String ohlcEndpoint;
 
   public QuoteDataDto getQuoteDataDto(String symbols){
  
@@ -52,7 +54,7 @@ public class YahooFinanceManager {
 
   public String getCrumb(){
     String url = UriComponentsBuilder.newInstance() //
-      .scheme("https").host(host).path(crumEndpoint).build().toString();
+      .scheme("https").host(host).path(crumbEndpoint).build().toString();
 
     cookieStore.clear();
     String url2 = "https://fc.yahoo.com";

@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +26,8 @@ public class FiveMinDataDTO {
   @Setter
   private Long currentRegularMarketTime;
   @Setter
-  private LocalDateTime convertedDateTime;
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+  private LocalDateTime convertedMarketTime;
   @Setter
   private String symbol;
   private List<TStockPriceDTO> tStockPrices;
@@ -42,10 +45,11 @@ public class FiveMinDataDTO {
     private Double regularMarketPrice;
     private Double regularMarketChangePercent;
     @Setter
+    @JsonProperty(value = "SMAFiveMins")
     private Double SMAFiveMins;
   }
   public Double calculateSMAWithFive (){
-    if (this.tStockPrices.size() > 5){
+    if (this.tStockPrices.size() >= 5){
       int size = this.tStockPrices.size();
         List<Double> lastFivePrices = //
           this.tStockPrices.subList(Math.max(size - 5, 0), size) //

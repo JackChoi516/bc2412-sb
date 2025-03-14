@@ -6,6 +6,7 @@ api:
     host: "query1.finance.yahoo.com"
     endpoints:
       data: "/v7/finance/quote"
+      ohlc: "/v8/finance/chart"
       key: "/v1/test/getcrumb"
       
 spring.datasource:
