@@ -75,7 +75,7 @@ export default {
       const hours = String(date.getHours()).padStart(2, '0');  // Ensure 2 digits
       const minutes = String(date.getMinutes()).padStart(2, '0');  // Ensure 2 digits
       const seconds = String(date.getSeconds()).padStart(2, '0');  // Ensure 2 digits
-      return `${hours}:${minutes}`;  // Return time in HH:MM: format
+      return `${hours}:${minutes}`;  // Return time in HH:MM:SS format
     };
 
     // Function to format date as YYYY-MM-DD
@@ -112,20 +112,17 @@ export default {
             data: data.map(item => item.regularMarketPrice),
           }];
 
-          // Convert regularMarketTime to a human-readable time format (HH:MM:SS)
-          // chartOptions.value.xaxis.categories = data.map(item => convertToTime(item.regularMarketTime));
-          ////
-          // Adjust the logic to show every other timestamp if the data length is more than 20
-        chartOptions.value.xaxis.categories = data.map((item, index) => {
-        // If data length is greater than 20, show only every second timestamp
-        if (data.length > 20 && index % 2 === 0) {
-            return convertToTime(item.regularMarketTime);
-        }
-        // Otherwise, return an empty string for the timestamp
-        return '';
-        });
-        ///
-          // Format the currentRegularMarketTime to YYYY-MM-DD
+          // Adjust x-axis categories to show every other timestamp if the data length is greater than 20
+          chartOptions.value.xaxis.categories = data.map((item, index) => {
+            if (data.length > 20 && data.length <= 30 && index % 2 === 0 || index == data.length - 1) {
+              return convertToTime(item.regularMarketTime);  // Only show even-indexed timestamps
+            } else if (data.length > 30 && index % 4 == 0 || index == data.length - 1){
+              return convertToTime(item.regularMarketTime);
+            }
+            return '';  // Hide timestamps for other indices
+          });
+
+          // Format the currentRegularMarketTime to YYYY-MM-DD for annotation
           const formattedDate = formatDate(currentRegularMarketTime);
 
           // Set the annotation for the currentRegularMarketTime (top-right)
@@ -146,8 +143,7 @@ export default {
 
           // If SMA data is available and showSMA is true, add it to the chart
           if (showSMA.value) {
-            // Map the smaFiveMins field into the SMA series
-            const smaData = data.map(item => item.SMAFiveMins !== null ? item.SMAFiveMins : null); // Only show valid SMA points
+            const smaData = data.map(item => item.SMAFiveMins !== null ? item.SMAFiveMins : null);  // Only show valid SMA points
 
             chartSeries.value.push({
               name: '5-Min SMA',
@@ -161,7 +157,6 @@ export default {
               },
             });
           } else {
-            // If SMA is not checked, remove the SMA series
             chartSeries.value = chartSeries.value.filter(series => series.name !== '5-Min SMA');
           }
 
