@@ -23,7 +23,6 @@ public class StockDataController implements StockDataOeration{
     return this.stockDataService.getStockLists();
   }
 
-  // @CrossOrigin
   @Override
   public List<TStockPriceEntity> getFiveMinList(String symbol) throws JsonProcessingException{
     return this.stockDataService.getFiveMinList(symbol);

@@ -20,4 +20,5 @@ public class YahooFinanceController implements YahooFinanceOperation{
   public String getCrumb(){
     return this.yahooFinanceService.getCrumb();
   }
+
 }

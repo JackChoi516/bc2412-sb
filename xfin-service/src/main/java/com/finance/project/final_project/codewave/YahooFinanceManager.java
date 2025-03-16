@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.HttpHeaders;
+
+import com.finance.project.final_project.model.OHLCDataDto;
 import com.finance.project.final_project.model.QuoteDataDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
@@ -28,18 +30,17 @@ public class YahooFinanceManager {
   @Value("${api.yahooFinance.host}")
   private String host;
   @Value("${api.yahooFinance.endpoints.data}")
-  private String data;
+  private String qouteDataEndpoint;
   @Value("${api.yahooFinance.endpoints.key}")
   private String crumbEndpoint;
   @Value("${api.yahooFinance.endpoints.ohlc}")
   private String ohlcEndpoint;
 
   public QuoteDataDto getQuoteDataDto(String symbols){
- 
     String url = UriComponentsBuilder.newInstance()
     .scheme("https")
     .host(host)
-    .path(data)
+    .path(qouteDataEndpoint)
     .queryParam("symbols", symbols)
     .queryParam("crumb", this.getCrumb())
     .build().toString();
@@ -51,6 +52,25 @@ public class YahooFinanceManager {
     return response.getBody();
   }
 
+  public OHLCDataDto getOHLCDataDto(String symbol, Long period1, Long period2, String interval){
+    String url = UriComponentsBuilder.newInstance()
+    .scheme("https")
+    .host(host)
+    .path(ohlcEndpoint)
+    .path("/" + symbol)
+    .queryParam("period1", period1)
+    .queryParam("period2", period2)
+    .queryParam("interval", interval)
+    .queryParam("events", "history")
+    .queryParam("crumb", this.getCrumb())
+    .build().toString();
+
+    ResponseEntity<OHLCDataDto> response = restTemplate //
+    .exchange(url, HttpMethod.GET, entity, OHLCDataDto.class);
+
+  cookieStore.clear();
+  return response.getBody();
+  }
 
   public String getCrumb(){
     String url = UriComponentsBuilder.newInstance() //
