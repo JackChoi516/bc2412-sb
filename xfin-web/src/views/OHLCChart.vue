@@ -1,6 +1,20 @@
 <template>
   <div>
     <h1>OHLC Chart for {{ symbol }}</h1>
+    
+    <!-- Period Selector -->
+    <div>
+      <label for="period">Select Period:</label>
+      <select id="period" v-model="selectedPeriod" @change="updateChartData">
+        <option value="1M">1 Month</option>
+        <option value="3M">3 Months</option>
+        <option value="6M">6 Months</option>
+        <option value="1Y">1 Year</option>
+        <option value="2Y">2 Years</option>
+      </select>
+    </div>
+    
+    <!-- Chart -->
     <apexchart v-if="chartData" :options="chartOptions" :series="chartData" type="candlestick" height="350" />
     <p v-else>Loading chart data for {{ symbol }}...</p>
   </div>
@@ -19,6 +33,7 @@ export default {
   },
   setup(props) {
     const chartData = ref(null);
+    const selectedPeriod = ref("1M");  // Default to 1 month period
     const chartOptions = ref({
       chart: {
         type: 'candlestick',
@@ -55,18 +70,22 @@ export default {
       }
     });
 
-    const fetchData = async () => {
+    // Function to update chart data based on the selected period
+    const updateChartData = async () => {
+      await fetchData(selectedPeriod.value);
+    };
+
+    // Fetch OHLC data from the server based on the selected period
+    const fetchData = async (period) => {
       try {
-        // Replace with your actual API URL
-        // https://api.coingecko.com/api/v3/coins/${props.symbol}/ohlc?vs_currency=usd&days=1&x-cg-pro-api-key=CG-oE5wwghEX2yR3FraRjbAU7U2
-        // https://api.example.com/ohlc/${props.symbol}
-        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${props.symbol}/ohlc?vs_currency=usd&days=1&x-cg-pro-api-key=CG-oE5wwghEX2yR3FraRjbAU7U2`);
+        // Fetch data from the backend API based on the period selected
+        const response = await fetch(`http://localhost:8099/ohlc/1d?period=${period}symbol=${props.symbol}`);
         const data = await response.json();
         
         // Assuming data is in the format [[timestamp, open, high, low, close], ...]
         const formattedData = data.map(item => ({
-          x: new Date(item[0]), // Timestamp in milliseconds
-          y: [item[1], item[2], item[3], item[4]] // Open, High, Low, Close
+          x: new Date(item.regular_market_time * 1000), // Convert timestamp to milliseconds
+          y: [item.open, item.high, item.low, item.close] // Open, High, Low, Close
         }));
 
         chartData.value = [{
@@ -77,13 +96,16 @@ export default {
       }
     };
 
+    // Initialize the chart with default period (1M)
     onMounted(() => {
-      fetchData();
+      fetchData(selectedPeriod.value);
     });
 
     return {
       chartData,
-      chartOptions
+      chartOptions,
+      selectedPeriod,
+      updateChartData
     };
   }
 };
@@ -98,5 +120,10 @@ export default {
 .apexcharts-tooltip-text span {
   display: block;
   margin: 5px 0;
+}
+
+select {
+  margin: 10px 0;
+  padding: 5px;
 }
 </style>

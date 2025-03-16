@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     // Navigate to the cryptocurrency chart page
-    navigateToCryptoChart() {
+    navigateToOhlcChart() {
       if (this.selectedCrypto) {
         this.$router.push(`/ohlc/${this.selectedCrypto}`);
       }
