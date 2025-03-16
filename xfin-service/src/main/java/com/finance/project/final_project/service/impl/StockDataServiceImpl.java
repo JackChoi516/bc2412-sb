@@ -52,14 +52,14 @@ public class StockDataServiceImpl implements StockDataService {
   @Override
   public Map<String, List<String>> getStockLists() throws JsonProcessingException {
     Map<String, List<String>> result = new HashMap<>();
-    String[] dataResult = this.redisManager.get("stock-lists", String[].class);
-    if (dataResult != null && dataResult.length != 0) {
-      result.put("stock-lists", Arrays.asList(dataResult));
-      return result;
-    }
+    // String[] dataResult = this.redisManager.get("stock-lists", String[].class);
+    // if (dataResult != null && dataResult.length != 0) {
+    //   result.put("stock-lists", Arrays.asList(dataResult));
+    //   return result;
+    // }
     List<String> stockLists = this.stockListRepository.findAll() //
       .stream().map(e -> e.getSymbol()).collect(Collectors.toList());
-    this.redisManager.set("stock-lists", stockLists.toArray(), Duration.ofDays(1));
+    this.redisManager.set("stock-lists", stockLists.toArray(), Duration.ofDays(30));
     result.put("stock-lists", stockLists);
     return result;
   }

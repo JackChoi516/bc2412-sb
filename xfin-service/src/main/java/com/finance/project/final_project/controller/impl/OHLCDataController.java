@@ -18,4 +18,9 @@ public class OHLCDataController implements OHLCDataOperation{
   public List<TStockPriceOHLCEntity> saveOHLCToDatabase(String symbol, Long period1, Long period2, String interval){
     return this.stockOHLCDataService.saveOHLCToDatabase(symbol, period1, period2, interval);
   }
+
+  @Override
+  public List<TStockPriceOHLCEntity> getByPeriodAndSymbol(String period, String symbol){
+    return this.stockOHLCDataService.getByPeriodAndSymbol(period, symbol);
+  }
 }

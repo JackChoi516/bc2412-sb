@@ -16,11 +16,11 @@ public class ScheduleConfig {
   @Autowired
   private RedisManager redisManager;
   
-  // @Scheduled(fixedRate = 300000)
-  // public void saveQuoteData() throws JsonProcessingException{
-  //   this.stockDataService.saveQuoteData5M();
-  //   System.out.println("QuoteData saved. type: 5M");
-  // }
+  @Scheduled(fixedRate = 300000)
+  public void saveQuoteData() throws JsonProcessingException{
+    this.stockDataService.saveQuoteData5M();
+    System.out.println("QuoteData saved. type: 5M");
+  }
 
   // @Scheduled(cron = "0 30 8 * * ?")
   // public void clearRedisCache() {

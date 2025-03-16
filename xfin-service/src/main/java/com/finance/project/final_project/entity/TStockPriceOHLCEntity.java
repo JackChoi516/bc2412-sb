@@ -2,6 +2,7 @@ package com.finance.project.final_project.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.finance.project.final_project.entity.idClass.OHLCEntityIdClass;
 
 import jakarta.persistence.Entity;
@@ -29,6 +30,7 @@ public class TStockPriceOHLCEntity {
   private String type;
   @Id
   private String symbol;
+  @JsonFormat(pattern = "yyyy-MM-dd")
   private LocalDateTime convertedDateTime;
   private Double high;
   private Double low;
