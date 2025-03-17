@@ -6,14 +6,14 @@
       <button @click="setChartType('candlestick')" :class="{'active-tab': chartType === 'candlestick'}">OHLC Chart</button>
     </div>
 
-<!-- Period buttons for OHLC Chart -->
-<div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
-  <button @click="changePeriod('1M')">1M</button>
-  <button @click="changePeriod('3M')">3M</button>
-  <button @click="changePeriod('6M')">6M</button>
-  <button @click="changePeriod('1Y')">1Y</button>
-  <button @click="changePeriod('5Y')">5Y</button>
-</div>
+    <!-- Period buttons for OHLC Chart -->
+    <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
+      <button @click="changePeriod('1M')">1M</button>
+      <button @click="changePeriod('3M')">3M</button>
+      <button @click="changePeriod('6M')">6M</button>
+      <button @click="changePeriod('1Y')">1Y</button>
+      <button @click="changePeriod('5Y')">5Y</button>
+    </div>
 
     <!-- Checkbox for toggling the display of SMA line -->
     <div v-if="chartType === 'line'" style="margin-bottom: 10px;">
@@ -25,7 +25,7 @@
 
     <!-- Use v-if to ensure chart is only rendered once data is available -->
     <apexchart
-      v-if="!isLoading && chartData.length"
+      v-if="chartData.length"
       :type="chartType"
       :options="chartOptions"
       :series="chartSeries"
@@ -35,7 +35,6 @@
     <p v-else>Loading chart data...</p>
   </div>
 </template>
-
 
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
@@ -116,6 +115,11 @@ export default {
       return `${year}-${month}-${day}`; // Return in YYYY-MM-DD format
     };
 
+    // Function to format timestamps consistently
+    const formatTimestampForChart = (timestamp) => {
+      return convertToTime(timestamp);
+    };
+
     // Fetch market price data and SMA data
     const fetchData = async () => {
       isLoading.value = true; // Set loading state to true before fetching data
@@ -144,14 +148,14 @@ export default {
           // Adjust x-axis categories to show every other timestamp if the data length is greater than 20
           chartOptions.value.xaxis.categories = data.map((item, index) => {
             if (data.length <= 20) {
-              return convertToTime(item.regularMarketTime);
+              return formatTimestampForChart(item.regularMarketTime);
             } else if (
               (data.length > 20 && data.length <= 30 && index % 2 === 0) ||
               index == data.length - 1
             ) {
-              return convertToTime(item.regularMarketTime); // Only show even-indexed timestamps
+              return formatTimestampForChart(item.regularMarketTime); // Only show even-indexed timestamps
             } else if (data.length > 30 && index % 4 == 0 || index == data.length - 1) {
-              return convertToTime(item.regularMarketTime);
+              return formatTimestampForChart(item.regularMarketTime);
             }
             return ""; // Hide timestamps for other indices
           });
@@ -214,67 +218,67 @@ export default {
       }
     };
 
-// Function to fetch OHLC data based on the selected period
-const fetchOHLCData = async () => {
-  isLoading.value = true;
-  try {
-    const response = await fetch(
-      `http://localhost:8099/ohlc/1d?period=${period.value}&symbol=${symbol}` // Use the current period
-    );
-    const fetchedData = await response.json();
-
-    if (Array.isArray(fetchedData) && fetchedData.length > 0) {
-      const ohlcData = fetchedData
-        .map((item) => {
-          if (
-            item &&
-            item.open !== null &&
-            item.high !== null &&
-            item.low !== null &&
-            item.close !== null &&
-            item.convertedDateTime
-          ) {
-            return {
-              x: item.convertedDateTime, // Timestamp
-              y: [item.open, item.high, item.low, item.close], // OHLC data
-            };
-          }
-          return null; // Skip invalid items
-        })
-        .filter((item) => item !== null); // Remove any null entries
-
-      if (ohlcData.length > 0) {
-        chartType.value = "candlestick";
-        chartOptions.value.title.text = `OHLC Chart for ${symbol} (${period.value})`; // Include the selected period in the title
-
-        chartSeries.value = [
-          {
-            name: "OHLC",
-            data: ohlcData,
-          },
-        ];
-
-        chartOptions.value.xaxis.categories = ohlcData.map(
-          (item) => item.x // Use the x timestamp for the x-axis categories
+    // Function to fetch OHLC data based on the selected period
+    const fetchOHLCData = async () => {
+      isLoading.value = true;
+      try {
+        const response = await fetch(
+          `http://localhost:8099/ohlc/1d?period=${period.value}&symbol=${symbol}` // Use the current period
         );
-      } else {
-        console.error("Invalid OHLC data received:", fetchedData);
-      }
-    } else {
-      console.error("Empty or invalid OHLC data:", fetchedData);
-    }
-  } catch (error) {
-    console.error("Error fetching OHLC data:", error);
-  } finally {
-    isLoading.value = false;
-  }
-};
+        const fetchedData = await response.json();
 
-// Function to handle the period change when a button is clicked
-const changePeriod = (newPeriod) => {
-  period.value = newPeriod; // Update the selected period
-  fetchOHLCData(); // Fetch new OHLC data with the updated period
-};
+        if (Array.isArray(fetchedData) && fetchedData.length > 0) {
+          const ohlcData = fetchedData
+            .map((item) => {
+              if (
+                item &&
+                item.open !== null &&
+                item.high !== null &&
+                item.low !== null &&
+                item.close !== null &&
+                item.convertedDateTime
+              ) {
+                return {
+                  x: item.convertedDateTime, // Timestamp
+                  y: [item.open, item.high, item.low, item.close], // OHLC data
+                };
+              }
+              return null; // Skip invalid items
+            })
+            .filter((item) => item !== null); // Remove any null entries
+
+          if (ohlcData.length > 0) {
+            chartType.value = "candlestick";
+            chartOptions.value.title.text = `OHLC Chart for ${symbol} (${period.value})`; // Include the selected period in the title
+
+            chartSeries.value = [
+              {
+                name: "OHLC",
+                data: ohlcData,
+              },
+            ];
+
+            chartOptions.value.xaxis.categories = ohlcData.map(
+              (item) => item.x // Use the x timestamp for the x-axis categories
+            );
+          } else {
+            console.error("Invalid OHLC data received:", fetchedData);
+          }
+        } else {
+          console.error("Empty or invalid OHLC data:", fetchedData);
+        }
+      } catch (error) {
+        console.error("Error fetching OHLC data:", error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    // Function to handle the period change when a button is clicked
+    const changePeriod = (newPeriod) => {
+      period.value = newPeriod; // Update the selected period
+      fetchOHLCData(); // Fetch new OHLC data with the updated period
+    };
 
     // Function to handle the "Enter" button click
     const onEnterClicked = () => {
@@ -292,46 +296,46 @@ const changePeriod = (newPeriod) => {
       }
     };
 
-// Fetch OHLC data with the correct period when the chart type is 'candlestick'
-onMounted(() => {
-  fetchData(); // Initial data fetch
+    // Fetch OHLC data with the correct period when the chart type is 'candlestick'
+    onMounted(() => {
+      fetchData(); // Initial data fetch
 
-  const intervalId = setInterval(() => {
-    if (chartType.value === "candlestick") {
-      // fetchOHLCData(); // Fetch with the current period
-    } else {
-      fetchData(); // Fetch line chart data if line chart is selected
-    }
-  }, 10000); // 10 seconds interval
+      const intervalId = setInterval(() => {
+        if (chartType.value === "candlestick") {
+          fetchOHLCData(); // Fetch with the current period
+        } else {
+          fetchData(); // Fetch line chart data if line chart is selected
+        }
+      }, 10000); // 10 seconds interval
 
-  onUnmounted(() => {
-    clearInterval(intervalId); // Clear interval on unmount
-  });
-});
+      onUnmounted(() => {
+        clearInterval(intervalId); // Clear interval on unmount
+      });
+    });
 
-return {
-  chartData,
-  chartSeries,
-  chartOptions,
-  isLoading,
-  showSMA,
-  chartRef,
-  enterClicked,
-  onEnterClicked,
-  fetchOHLCData,
-  chartType,
-  setChartType,
-  changePeriod, // Expose the period change function
-  period, // Expose the period value
-};
+    return {
+      chartData,
+      chartSeries,
+      chartOptions,
+      isLoading,
+      showSMA,
+      chartRef,
+      enterClicked,
+      onEnterClicked,
+      fetchOHLCData,
+      chartType,
+      setChartType,
+      changePeriod, // Expose the period change function
+      period, // Expose the period value
+    };
   },
 };
-
 </script>
+
 
 <style scoped>
 .chart-container {
-  width: 65%;
+  width: 50%;
   height: 300px;
   margin: 0 auto;
 }
