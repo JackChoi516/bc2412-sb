@@ -1,21 +1,31 @@
 package com.finance.project.final_project.service.impl;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.finance.project.final_project.dto.OnewkOHLCDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.finance.project.final_project.codewave.RedisManager;
+import com.finance.project.final_project.dto.StockOHLCDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
+import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 import com.finance.project.final_project.entity.mapper.EntityMapper;
 import com.finance.project.final_project.model.OHLCDataDto;
 import com.finance.project.final_project.repository.TStockPriceOHLCRepository;
+import com.finance.project.final_project.repository.TStockPriceRepository;
 import com.finance.project.final_project.service.StockOHLCDataService;
 import com.finance.project.final_project.service.YahooFinanceService;
 
@@ -23,18 +33,18 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class StockOHLCDataServiceImp implements StockOHLCDataService {
-
-    private final DTOMapper DTOMapper;
   @Autowired
   private YahooFinanceService yahooFinanceService;
   @Autowired
   private EntityMapper entityMapper;
   @Autowired
   private TStockPriceOHLCRepository tStockPriceOHLCRepository;
-
-    StockOHLCDataServiceImp(DTOMapper DTOMapper) {
-        this.DTOMapper = DTOMapper;
-    }
+  @Autowired
+  private TStockPriceRepository tStockPriceRepository;
+  @Autowired
+  private DTOMapper dtoMapper;
+  @Autowired
+  private RedisManager redisManager;
 
   @Override
   @Transactional
@@ -51,7 +61,21 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
   }
 
   @Override
-  public List<TStockPriceOHLCEntity> getByPeriodAndSymbol(String period, String symbol){
+  public List<StockOHLCDTO> getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
+    if (interval.equals("1d")){
+      return this.getByPeriodAndSymbol(period, symbol);
+    } else if (interval.equals("1wk")){
+      return this.get1wkByPeriodAndSymbol(period, symbol);
+    }
+    return null;
+  }
+
+
+  private List<StockOHLCDTO> getByPeriodAndSymbol(String period, String symbol) throws JsonProcessingException{
+    StockOHLCDTO[] redisReturn = this.redisManager.get("1d" + period + symbol, StockOHLCDTO[].class);
+    if (redisReturn != null){
+      return Arrays.asList(redisReturn);
+    }
     int months = 0;
     if (period.equals("1M")){
       months = 1;
@@ -67,18 +91,22 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     LocalDate dateNow = LocalDate.now();
     LocalDate monthsBefore = dateNow.minusMonths(months);
     Long startOfThatDay = monthsBefore.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
-    return this.tStockPriceOHLCRepository //
-    .findByRegularMarketTimeGreaterThanEqualAndSymbol(startOfThatDay, symbol);
+    List<StockOHLCDTO> result = this.dtoMapper.mapOHLC(this.tStockPriceOHLCRepository //
+    .findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startOfThatDay, symbol, "1d"));
+    this.redisManager.set("1d" + period + symbol, result, Duration.ofMinutes(10));
+    return result;
   }
 
-  @Override
-  public List<OnewkOHLCDTO> get1wkByPeriodAndSymbol(String period, String symbol){
+  private List<StockOHLCDTO> get1wkByPeriodAndSymbol(String period, String symbol) throws JsonProcessingException{
+    StockOHLCDTO[] redisReturn = this.redisManager.get("1wk" + period + symbol, StockOHLCDTO[].class);
+    if (redisReturn != null){
+      return Arrays.asList(redisReturn);
+    }
+
     int yearFrom = 0;
     int monthFrom = 0;
-    Calendar calendar = Calendar.getInstance();
     LocalDate dateNow = LocalDate.now(ZoneId.systemDefault());
-    // LocalDateTime firstMonOfMonth = 
-    Long startFrom = 0L;
+    
     if (period.equals("6M")){
       monthFrom = dateNow.minusMonths(6).getMonthValue();
       yearFrom = dateNow.minusMonths(6).getYear();
@@ -89,12 +117,43 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       monthFrom = dateNow.minusMonths(60).getMonthValue();
       yearFrom = dateNow.minusMonths(60).getYear();
     }
-    List<TStockPriceOHLCEntity> entities = //
-      this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbol(startFrom, symbol);
 
-    List<OnewkOHLCDTO> result = new ArrayList<>();
+    Long startFrom = LocalDate.of(yearFrom, monthFrom, 1) //
+      .with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)) //
+      .atTime(00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
 
+    List<StockOHLCDTO> result = //
+      this.dtoMapper.mapOHLC(
+        this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startFrom, symbol, "1wk")
+        );
+    
+    // if now is regular time
+    if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
+      Long thisWkMon = dateNow.with(DayOfWeek.MONDAY).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
+      List<TStockPriceEntity> currentWk = this.tStockPriceRepository.findByRegularMarketTimeGreaterThanEqualAndSymbol(thisWkMon, symbol);
 
-    return null;
+      // set current week up to date open and close
+      StockOHLCDTO currentOHLC = StockOHLCDTO.builder() //
+        .symbol(symbol).type("1wk") //
+        .open(currentWk.get(0).getRegularMarketPrice()) //
+        .close(currentWk.get(currentWk.size() - 1).getRegularMarketPrice()) //
+        .build();
+      // find the high and low
+      Double high = Double.MIN_VALUE;
+      Double low = Double.MAX_VALUE;
+      for (TStockPriceEntity e : currentWk){
+       if (e.getRegularMarketPrice() > high){
+        high = e.getRegularMarketPrice();
+       }
+       if (e.getRegularMarketPrice() < low){
+        low = e.getRegularMarketPrice();
+       }
+      }
+      currentOHLC.setHigh(high);
+      currentOHLC.setLow(low);
+      result.add(currentOHLC);
+    }
+    this.redisManager.set("1wk" + period + symbol, result, Duration.ofMinutes(10));
+    return result;
   } 
 }

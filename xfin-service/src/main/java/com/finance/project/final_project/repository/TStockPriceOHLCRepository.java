@@ -10,5 +10,5 @@ import com.finance.project.final_project.entity.idClass.OHLCEntityIdClass;
 
 @Repository
 public interface TStockPriceOHLCRepository extends JpaRepository<TStockPriceOHLCEntity, OHLCEntityIdClass>{
-  List<TStockPriceOHLCEntity> findByRegularMarketTimeGreaterThanEqualAndSymbol(Long regularMarketTime, String symbol);
+  List<TStockPriceOHLCEntity> findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(Long regularMarketTime, String symbol, String type);
 }

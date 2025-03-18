@@ -22,9 +22,13 @@ public class ScheduleConfig {
   //   System.out.println("QuoteData saved. type: 5M");
   // }
 
+
   // @Scheduled(cron = "0 30 8 * * ?")
   // public void clearRedisCache() {
       
   //   System.out.println("Cache deleted.");
   // }
+
+  // to do
+  // save 1d and w wk!!
 }

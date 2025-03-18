@@ -18,3 +18,9 @@ spring.datasource:
 spring.jpa:
   show-sql: true
   hibernate.ddl-auto: update
+
+redis:
+  enabled: "Y"
+  # requirepass: "Y"
+  maxmemory: "Y"
+  memory_limit: "256mb"

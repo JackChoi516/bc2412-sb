@@ -41,12 +41,12 @@ public class PreServerStartConfig implements CommandLineRunner{
     Long start = LocalDateTime.of(2025, 03, 17, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
     Long end = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    for (String stock : stocklists){
-      if (stock.contains(".HK")){
-        this.stockOHLCDataService.saveOHLCToDatabase(stock, start, end, "1d");
-        System.out.println("Saving 1d OHLC " + stock);
-      }
-    }
-    System.out.println("Saving 1d OHLC complete.");
+    // for (String stock : stocklists){
+    //   if (stock.contains(".HK")){
+    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, start, end, "1d");
+    //     System.out.println("Saving 1d OHLC " + stock);
+    //   }
+    // }
+    // System.out.println("Saving 1d OHLC complete.");
   }
 }

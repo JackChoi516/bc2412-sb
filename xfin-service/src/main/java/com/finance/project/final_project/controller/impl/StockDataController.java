@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.controller.StockDataOeration;
-import com.finance.project.final_project.dto.FiveMinDataDTO;
+import com.finance.project.final_project.dto.StockFiveMinDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.service.StockDataService;
 
@@ -30,7 +30,7 @@ public class StockDataController implements StockDataOeration{
 
   @CrossOrigin
   @Override
-  public FiveMinDataDTO getFiveMinData(String symbol) throws JsonProcessingException{
+  public StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException{
     return this.stockDataService.getFiveMinData(symbol);
   }
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.codewave.RedisManager;
-import com.finance.project.final_project.dto.FiveMinDataDTO;
+import com.finance.project.final_project.dto.StockFiveMinDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.mapper.EntityMapper;
@@ -134,9 +134,9 @@ public class StockDataServiceImpl implements StockDataService {
 
 
   @Override
-  public FiveMinDataDTO getFiveMinData(String symbol) throws JsonProcessingException {
+  public StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException {
     List<TStockPriceEntity> entities = this.getFiveMinList(symbol);
-    FiveMinDataDTO result = this.dtoMapper.map(entities);
+    StockFiveMinDTO result = this.dtoMapper.map(entities);
     return result;
   }
 

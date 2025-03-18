@@ -22,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class FiveMinDataDTO {
+public class StockFiveMinDTO {
   @Setter
   private Long currentRegularMarketTime;
   @Setter

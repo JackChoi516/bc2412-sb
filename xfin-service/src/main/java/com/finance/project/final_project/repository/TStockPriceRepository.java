@@ -25,7 +25,7 @@ public interface TStockPriceRepository extends JpaRepository<TStockPriceEntity, 
 List<TStockPriceEntity> findByDateAndSymbol(@Param("date") LocalDate date, @Param("symbol") String symbol);
 
 // List<TStockPriceEntity> findTop5BySymbolOrderByTimestampDesc(String symbol);
-
+List<TStockPriceEntity> findByRegularMarketTimeGreaterThanEqualAndSymbol(Long startFrom, String symbol);
 
 
 
