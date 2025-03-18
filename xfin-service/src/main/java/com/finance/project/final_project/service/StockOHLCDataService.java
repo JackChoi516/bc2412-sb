@@ -9,4 +9,6 @@ import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 public interface StockOHLCDataService {
   List<TStockPriceOHLCEntity> saveOHLCToDatabase(String symbol, Long period1, Long period2, String interval);
   List<StockOHLCDTO> getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException;
+  void saveOneDayToRedis(String symbol) throws JsonProcessingException;
+  void saveOneWkToRedis(String symbol) throws JsonProcessingException;
 }

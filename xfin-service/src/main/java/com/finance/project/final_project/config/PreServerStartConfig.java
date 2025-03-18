@@ -38,11 +38,11 @@ public class PreServerStartConfig implements CommandLineRunner{
     List<String> stocklists = this.stockDataService.getStockLists().get("stock-lists");
     System.out.println("Stock lists called.");
 
-    Long start = LocalDateTime.of(2025, 03, 17, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long start = LocalDateTime.of(2025, 01, 01, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
     Long end = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
 
     // for (String stock : stocklists){
-    //   if (stock.contains(".HK")){
+    //   if (!stock.contains(".HK")){
     //     this.stockOHLCDataService.saveOHLCToDatabase(stock, start, end, "1d");
     //     System.out.println("Saving 1d OHLC " + stock);
     //   }

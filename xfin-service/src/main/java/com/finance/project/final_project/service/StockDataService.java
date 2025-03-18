@@ -8,6 +8,7 @@ import com.finance.project.final_project.dto.StockFiveMinDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 
 public interface StockDataService {
+  void saveStockLists() throws JsonProcessingException;
   Map<String, List<String>> getStockLists() throws JsonProcessingException;
   void saveQuoteData5M() throws JsonProcessingException;
   StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException;

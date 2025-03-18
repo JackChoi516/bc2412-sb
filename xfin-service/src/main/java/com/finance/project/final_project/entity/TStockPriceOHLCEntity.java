@@ -30,7 +30,7 @@ public class TStockPriceOHLCEntity {
   private String type;
   @Id
   private String symbol;
-  @JsonFormat(pattern = "yyyy-MM-dd")
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime convertedDateTime;
   private Double high;
   private Double low;

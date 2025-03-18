@@ -21,7 +21,7 @@ public class EntityMapper {
     TStockPriceEntity entity = TStockPriceEntity.builder() //
         .type("") //
         .apiDateTime(ZonedDateTime.now()) //
-        .symbol("") //
+        .symbol(quoteData.getQuoteResponse().getResult().get(0).getSymbol()) //
         .regularMarketTime(quoteData.getQuoteResponse().getResult().get(0).getRegularMarketTime()) //
         .marketTimeWithZone(
         ZonedDateTime.ofInstant(
@@ -84,4 +84,75 @@ public class EntityMapper {
     return entities;
   }
 
+  public TStockPriceOHLCEntity mapOneDay(List<TStockPriceEntity> entities){
+    Double high = Double.MIN_VALUE;
+    Double low = Double.MAX_VALUE;
+    TStockPriceOHLCEntity result = TStockPriceOHLCEntity.builder() //
+        .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
+        .convertedDateTime(entities.get(entities.size() - 1).getMarketTimeWithZone().toLocalDateTime()) //
+        .symbol(entities.get(0).getSymbol()) //
+        .type("1d") //
+        .open(entities.get(0).getRegularMarketPrice()) //
+        .close(entities.get(entities.size() - 1).getRegularMarketPrice()).build();
+
+    for (TStockPriceEntity e : entities){
+      if (e.getRegularMarketPrice() > high){
+        high = e.getRegularMarketPrice();
+      }
+      if (e.getRegularMarketPrice() < low){
+        low = e.getRegularMarketPrice();
+      }
+    }
+    result.setHigh(high);
+    result.setLow(low);
+    return result;
+  }
+
+  public TStockPriceOHLCEntity mapOneWk(List<TStockPriceOHLCEntity> entities){
+    Double high = Double.MIN_VALUE;
+    Double low = Double.MAX_VALUE;
+    TStockPriceOHLCEntity result = TStockPriceOHLCEntity.builder() //
+        .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
+        .convertedDateTime(entities.get(entities.size() - 1).getConvertedDateTime()) //
+        .symbol(entities.get(0).getSymbol()) //
+        .type("1wk") //
+        .open(entities.get(0).getOpen()) //
+        .close(entities.get(entities.size() - 1).getClose()).build();
+
+    for (TStockPriceOHLCEntity e : entities){
+      if (e.getHigh() > high){
+        high = e.getHigh();
+      }
+      if (e.getLow() < low){
+        low = e.getLow();
+      }
+    }
+    result.setHigh(high);
+    result.setLow(low);
+    return result;
+  }
+
+  public TStockPriceOHLCEntity mapOneMo(List<TStockPriceOHLCEntity> entities){
+    Double high = Double.MIN_VALUE;
+    Double low = Double.MAX_VALUE;
+    TStockPriceOHLCEntity result = TStockPriceOHLCEntity.builder() //
+        .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
+        .convertedDateTime(entities.get(entities.size() - 1).getConvertedDateTime()) //
+        .symbol(entities.get(0).getSymbol()) //
+        .type("1mo") //
+        .open(entities.get(0).getOpen()) //
+        .close(entities.get(entities.size() - 1).getClose()).build();
+
+    for (TStockPriceOHLCEntity e : entities){
+      if (e.getHigh() > high){
+        high = e.getHigh();
+      }
+      if (e.getLow() < low){
+        low = e.getLow();
+      }
+    }
+    result.setHigh(high);
+    result.setLow(low);
+    return result;
+  }
 }

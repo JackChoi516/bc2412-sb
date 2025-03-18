@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,16 +53,23 @@ public class StockDataServiceImpl implements StockDataService {
   @Override
   public Map<String, List<String>> getStockLists() throws JsonProcessingException {
     Map<String, List<String>> result = new HashMap<>();
-    // String[] dataResult = this.redisManager.get("stock-lists", String[].class);
-    // if (dataResult != null && dataResult.length != 0) {
-    //   result.put("stock-lists", Arrays.asList(dataResult));
-    //   return result;
-    // }
+    String[] dataResult = this.redisManager.get("stock-lists", String[].class);
+    if (dataResult != null && dataResult.length != 0) {
+      result.put("stock-lists", Arrays.asList(dataResult));
+      return result;
+    }
     List<String> stockLists = this.stockListRepository.findAll() //
       .stream().map(e -> e.getSymbol()).collect(Collectors.toList());
     this.redisManager.set("stock-lists", stockLists.toArray(), Duration.ofDays(30));
     result.put("stock-lists", stockLists);
     return result;
+  }
+
+  @Override
+  public void saveStockLists() throws JsonProcessingException{
+    List<String> stockLists = this.stockListRepository.findAll() //
+    .stream().map(e -> e.getSymbol()).collect(Collectors.toList());
+  this.redisManager.set("stock-lists", stockLists.toArray(), Duration.ofDays(30));
   }
 
   @Override
@@ -83,7 +91,7 @@ public class StockDataServiceImpl implements StockDataService {
         if (quote.getQuoteResponse().getResult().get(0).getMarketState().equals("PRE")) {
           this.redisManager.del("5MINLIST-" + symbol);
         }
-        // get latest
+        // get latest entity
         Long latestTime = null;
         Optional<TStockPriceEntity> latestOptional = //
             this.tStockPriceRepository.findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
@@ -99,7 +107,7 @@ public class StockDataServiceImpl implements StockDataService {
           && quoteTimeNow > latestTime
           ) {
           TStockPriceEntity TStockPrice = this.entityMapper.map(quote);
-          TStockPrice.setSymbol(symbol);
+          // TStockPrice.setSymbol(symbol);
           TStockPrice.setType("5M");
           this.tStockPriceRepository.save(TStockPrice);
           this.redisManager.addToList("5MINLIST-" + symbol, TStockPrice, Duration.ofDays(7));
@@ -115,29 +123,37 @@ public class StockDataServiceImpl implements StockDataService {
     if (!redisData.isEmpty()){
       return redisData;
     }
-    Optional<TStockPriceEntity> latestEntity = this.tStockPriceRepository.findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
-    Long latestTime = null;
-    if (latestEntity.isPresent()){
-      latestTime = latestEntity.get().getRegularMarketTime();
-    }
-    List<TStockPriceEntity> databaseData = //
-      this.tStockPriceRepository.findByDateAndSymbol(LocalDate.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()), symbol);
-    databaseData.stream().forEach(e -> {
-      try {
-        this.redisManager.addToList("5MINLIST-" + symbol, e, Duration.ofDays(7)); 
-      } catch (Exception ex) {
-        System.out.println("Json Error..");
-      }
-    });
-    return databaseData;
+    // Optional<TStockPriceEntity> latestEntity = this.tStockPriceRepository.findTopBySymbolOrderByRegularMarketTimeDesc(symbol);
+    // Long latestTime = null;
+    // if (latestEntity.isPresent()){
+    //   latestTime = latestEntity.get().getRegularMarketTime();
+    // }
+    // List<TStockPriceEntity> databaseData = //
+    //   this.tStockPriceRepository.findByDateAndSymbol(LocalDate.ofInstant(Instant.ofEpochSecond(latestTime), ZoneId.systemDefault()), symbol);
+    // databaseData.stream().forEach(e -> {
+    //   try {
+    //     this.redisManager.addToList("5MINLIST-" + symbol, e, Duration.ofDays(7)); 
+    //   } catch (Exception ex) {
+    //     System.out.println("Json Error..");
+    //   }
+    // });
+    // return databaseData;
+    return new ArrayList<>();
   }
 
 
   @Override
   public StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException {
     List<TStockPriceEntity> entities = this.getFiveMinList(symbol);
-    StockFiveMinDTO result = this.dtoMapper.map(entities);
-    return result;
+    if (!entities.isEmpty()){
+      StockFiveMinDTO result = this.dtoMapper.map(entities);
+      return result;
+    }
+    TStockPriceEntity preStateEntity = this.entityMapper.map(this.yahooFinanceService.getQuoteDataDto(symbol));
+    List<TStockPriceEntity> preState = new ArrayList<>();
+    preState.add(preStateEntity);
+    System.out.println("No redis now.");
+    return this.dtoMapper.map(preState);
   }
 
   // latestTime.toLocalTime().isAfter(LocalTime.of(16,0))&&Instant.ofEpochSecond(quote

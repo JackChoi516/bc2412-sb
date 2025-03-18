@@ -62,21 +62,27 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
 
   @Override
   public List<StockOHLCDTO> getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
-    if (interval.equals("1d")){
-      return this.getByPeriodAndSymbol(period, symbol);
-    } else if (interval.equals("1wk")){
-      return this.get1wkByPeriodAndSymbol(period, symbol);
+    if (interval.equals("1d") || interval.equals("1wk")){
+      StockOHLCDTO[] redisReturn = this.redisManager.get(interval + period + symbol, StockOHLCDTO[].class);
+      if (redisReturn != null){
+        System.out.println("Redis returned.");
+        return Arrays.asList(redisReturn);
+      }
     }
+
     return null;
   }
 
 
-  private List<StockOHLCDTO> getByPeriodAndSymbol(String period, String symbol) throws JsonProcessingException{
-    StockOHLCDTO[] redisReturn = this.redisManager.get("1d" + period + symbol, StockOHLCDTO[].class);
-    if (redisReturn != null){
-      return Arrays.asList(redisReturn);
-    }
+  public void saveOneDayToRedis(String symbol) throws JsonProcessingException{
+    // StockOHLCDTO[] redisReturn = this.redisManager.get("1d" + period + symbol, StockOHLCDTO[].class);
+    // if (redisReturn != null){
+    //   System.out.println("Redis returned.");
+    //   return Arrays.asList(redisReturn);
+    // }
     int months = 0;
+    List<String> periods = Arrays.asList(new String[]{"1M", "3M", "6M", "1Y", "5Y"});
+    for (String period : periods){
     if (period.equals("1M")){
       months = 1;
     }else if (period.equals("3M")){
@@ -87,26 +93,39 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       months = 12;
     }else if (period.equals("5Y")){
       months = 60;
+    } else {
+      throw new IllegalArgumentException();
     }
     LocalDate dateNow = LocalDate.now();
     LocalDate monthsBefore = dateNow.minusMonths(months);
     Long startOfThatDay = monthsBefore.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
+
     List<StockOHLCDTO> result = this.dtoMapper.mapOHLC(this.tStockPriceOHLCRepository //
     .findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startOfThatDay, symbol, "1d"));
+
+    if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
+        List<TStockPriceEntity> currentDayEntities = this.tStockPriceRepository.findByDateAndSymbol(dateNow, symbol);
+        if (!currentDayEntities.isEmpty()){
+          StockOHLCDTO OHLCnow = this.dtoMapper.mapOneDayOHLC(currentDayEntities);
+          result.add(OHLCnow);
+        }
+    }
     this.redisManager.set("1d" + period + symbol, result, Duration.ofMinutes(10));
-    return result;
+  }
   }
 
-  private List<StockOHLCDTO> get1wkByPeriodAndSymbol(String period, String symbol) throws JsonProcessingException{
-    StockOHLCDTO[] redisReturn = this.redisManager.get("1wk" + period + symbol, StockOHLCDTO[].class);
-    if (redisReturn != null){
-      return Arrays.asList(redisReturn);
-    }
+  public void saveOneWkToRedis(String symbol) throws JsonProcessingException{
+    // StockOHLCDTO[] redisReturn = this.redisManager.get("1wk" + period + symbol, StockOHLCDTO[].class);
+    // if (redisReturn != null){
+    //   System.out.println("redis returned.");
+    //   return Arrays.asList(redisReturn);
+    // }
 
     int yearFrom = 0;
     int monthFrom = 0;
     LocalDate dateNow = LocalDate.now(ZoneId.systemDefault());
-    
+    List<String> periods = Arrays.asList(new String[]{"6M", "1Y", "5Y"});
+    for (String period : periods){
     if (period.equals("6M")){
       monthFrom = dateNow.minusMonths(6).getMonthValue();
       yearFrom = dateNow.minusMonths(6).getYear();
@@ -116,6 +135,8 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     } else if (period.equals("5Y")){
       monthFrom = dateNow.minusMonths(60).getMonthValue();
       yearFrom = dateNow.minusMonths(60).getYear();
+    } else {
+      throw new IllegalArgumentException();
     }
 
     Long startFrom = LocalDate.of(yearFrom, monthFrom, 1) //
@@ -130,30 +151,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     // if now is regular time
     if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
       Long thisWkMon = dateNow.with(DayOfWeek.MONDAY).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
-      List<TStockPriceEntity> currentWk = this.tStockPriceRepository.findByRegularMarketTimeGreaterThanEqualAndSymbol(thisWkMon, symbol);
-
-      // set current week up to date open and close
-      StockOHLCDTO currentOHLC = StockOHLCDTO.builder() //
-        .symbol(symbol).type("1wk") //
-        .open(currentWk.get(0).getRegularMarketPrice()) //
-        .close(currentWk.get(currentWk.size() - 1).getRegularMarketPrice()) //
-        .build();
-      // find the high and low
-      Double high = Double.MIN_VALUE;
-      Double low = Double.MAX_VALUE;
-      for (TStockPriceEntity e : currentWk){
-       if (e.getRegularMarketPrice() > high){
-        high = e.getRegularMarketPrice();
-       }
-       if (e.getRegularMarketPrice() < low){
-        low = e.getRegularMarketPrice();
-       }
+      List<TStockPriceEntity> currentWkEntities = this.tStockPriceRepository.findByRegularMarketTimeGreaterThanEqualAndSymbol(thisWkMon, symbol);
+      if (!currentWkEntities.isEmpty()){
+        StockOHLCDTO OHLCnow = this.dtoMapper.mapOneWkOHLC(currentWkEntities);
+        result.add(OHLCnow);
       }
-      currentOHLC.setHigh(high);
-      currentOHLC.setLow(low);
-      result.add(currentOHLC);
     }
     this.redisManager.set("1wk" + period + symbol, result, Duration.ofMinutes(10));
-    return result;
+  }
   } 
 }
