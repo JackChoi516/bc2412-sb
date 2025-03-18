@@ -15,6 +15,12 @@
       <button @click="changePeriod('5Y')">5Y</button>
     </div>
 
+    <!-- Interval buttons for OHLC Chart -->
+    <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
+      <button @click="changeInterval('1d')">1 Day</button>
+      <button @click="changeInterval('1wk')">1 Week</button>
+    </div>
+
     <!-- Checkbox for toggling the display of SMA line -->
     <div v-if="chartType === 'line'" style="margin-bottom: 10px;">
       <label for="showSMA">
@@ -89,6 +95,7 @@ export default {
     const enterClicked = ref(false); // New flag to track if "Enter" button is clicked
     const chartType = ref("line"); // Default chart type is line
     const period = ref('1M'); // Declare the `period` ref to track the selected period
+    const interval = ref('1d'); // Declare the `interval` ref to track the selected interval for OHLC chart
 
     // Function to convert Unix timestamp to a human-readable time format (HH:MM:SS)
     const convertToTime = (timestamp) => {
@@ -218,12 +225,12 @@ export default {
       }
     };
 
-    // Function to fetch OHLC data based on the selected period
+    // Function to fetch OHLC data based on the selected period and interval
     const fetchOHLCData = async () => {
       isLoading.value = true;
       try {
         const response = await fetch(
-          `http://localhost:8099/ohlc?interval=${interval.value}period=${period.value}&symbol=${symbol}` // Use the current period
+          `http://localhost:8099/ohlc?interval=${interval.value}&period=${period.value}&symbol=${symbol}` // Use the current interval and period
         );
         const fetchedData = await response.json();
 
@@ -249,8 +256,8 @@ export default {
 
           if (ohlcData.length > 0) {
             chartType.value = "candlestick";
-            // Update the title dynamically for OHLC with the selected period
-            chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value})`;
+            // Update the title dynamically for OHLC with the selected period and interval
+            chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
 
             chartSeries.value = [
               {
@@ -279,8 +286,14 @@ export default {
     const changePeriod = (newPeriod) => {
       period.value = newPeriod; // Update the selected period
       // Immediately update the chart title with the new period
-      chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value})`;
+      chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
       fetchOHLCData(); // Fetch new OHLC data with the updated period
+    };
+
+    // Function to handle the interval change for OHLC chart
+    const changeInterval = (newInterval) => {
+      interval.value = newInterval; // Update the selected interval
+      fetchOHLCData(); // Fetch new OHLC data with the updated interval
     };
 
     // Function to handle the "Enter" button click
@@ -297,18 +310,18 @@ export default {
         chartOptions.value.title.text = `Line chart for ${symbol}`;
         fetchData(); // Fetch line chart data if "line" is selected
       } else {
-        chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value})`;
+        chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
         chartSeries.value = []; // Clear the chart series if OHLC is selected
       }
     };
 
-    // Fetch OHLC data with the correct period when the chart type is 'candlestick'
+    // Fetch OHLC data with the correct period and interval when the chart type is 'candlestick'
     onMounted(() => {
       fetchData(); // Initial data fetch
 
       const intervalId = setInterval(() => {
         if (chartType.value === "candlestick") {
-          fetchOHLCData(); // Fetch with the current period
+          fetchOHLCData(); // Fetch with the current period and interval
         } else {
           fetchData(); // Fetch line chart data if line chart is selected
         }
@@ -332,12 +345,13 @@ export default {
       chartType,
       setChartType,
       changePeriod, // Expose the period change function
+      changeInterval, // Expose the interval change function
       period, // Expose the period value
+      interval, // Expose the interval value
     };
   },
 };
 </script>
-
 
 <style scoped>
 .chart-container {
