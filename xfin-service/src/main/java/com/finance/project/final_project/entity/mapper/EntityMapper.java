@@ -89,7 +89,7 @@ public class EntityMapper {
     Double low = Double.MAX_VALUE;
     TStockPriceOHLCEntity result = TStockPriceOHLCEntity.builder() //
         .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
-        .convertedDateTime(entities.get(entities.size() - 1).getMarketTimeWithZone().toLocalDateTime()) //
+        .convertedDateTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(entities.get(entities.size() - 1).getRegularMarketTime()), ZoneId.systemDefault())) //
         .symbol(entities.get(0).getSymbol()) //
         .type("1d") //
         .open(entities.get(0).getRegularMarketPrice()) //

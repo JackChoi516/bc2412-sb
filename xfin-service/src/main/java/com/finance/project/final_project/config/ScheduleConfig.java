@@ -65,19 +65,25 @@ public class ScheduleConfig {
     System.out.println("One week OHLC saved in Redis.");
   }
 
-  @Scheduled(cron = "0 30 19 * * MON-FRI")
+
+  // save OHLC to database
+  @Scheduled(cron = "0 00 17 * * MON-FRI")
   public void saveOneDayOHLC() throws JsonProcessingException {
     List<String> lists = this.stockDataService.getStockLists().get("stock-lists");
     for (String symbol : lists) {
       List<TStockPriceEntity> entities = tStockPriceRepository.findByDateAndSymbol(LocalDate.now(ZoneId.systemDefault()), symbol);
-      TStockPriceOHLCEntity result = this.entityMapper.mapOneDay(entities);
-      this.tStockPriceOHLCRepository.save(result);
-      System.out.println("One day saved: " + symbol);
+      if (!entities.isEmpty()){
+        TStockPriceOHLCEntity result = this.entityMapper.mapOneDay(entities);
+        this.tStockPriceOHLCRepository.save(result);
+        System.out.println("One day saved: " + symbol);
+      } else {
+        System.out.println("TStock_prices today for " + symbol);
+      }
     }
     System.out.println("All one day OHLC saved.");
   }
 
-  @Scheduled(cron = "0 45 19 ? * FRI")
+  @Scheduled(cron = "0 10 17 ? * FRI")
   public void saveOneWkOHLC() throws JsonProcessingException{
     LocalDate dateNow = LocalDate.now(ZoneId.systemDefault());
     Long startFrom = dateNow.minusDays(7).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
@@ -86,14 +92,18 @@ public class ScheduleConfig {
     List<TStockPriceOHLCEntity> entities = //
       this.tStockPriceOHLCRepository //
       .findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startFrom, symbol, "1d");
+    if (!entities.isEmpty()){
     TStockPriceOHLCEntity result = this.entityMapper.mapOneWk(entities);
     this.tStockPriceOHLCRepository.save(result);
     System.out.println("One week OHLC saved: " + symbol);
+    } else {
+      System.out.println("No 1d OHLC for " + symbol);
+    }
     }
     System.out.println("All one week OHLC saved.");
   }
 
-  @Scheduled(cron = "0 00 20 1 * ?")
+  @Scheduled(cron = "0 20 17 1 * ?")
   public void saveOneMoOHLC() throws JsonProcessingException{
     LocalDate dateNow = LocalDate.now(ZoneId.systemDefault());
     Long startFrom = dateNow.minusMonths(1).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
@@ -102,9 +112,13 @@ public class ScheduleConfig {
     List<TStockPriceOHLCEntity> entities = //
       this.tStockPriceOHLCRepository //
       .findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startFrom, symbol, "1d");
-    TStockPriceOHLCEntity result = this.entityMapper.mapOneMo(entities);
-    this.tStockPriceOHLCRepository.save(result);
-    System.out.println("One month OHLC saved: " + symbol);
+      if (!entities.isEmpty()){
+        TStockPriceOHLCEntity result = this.entityMapper.mapOneMo(entities);
+        this.tStockPriceOHLCRepository.save(result);
+        System.out.println("One month OHLC saved: " + symbol);
+      } else {
+        System.out.println("No 1d OHLC for " + symbol);
+      }
     }
     System.out.println("All one month OHLC saved.");
   }
