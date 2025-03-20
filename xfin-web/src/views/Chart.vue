@@ -240,7 +240,8 @@ export default {
         const response = await fetch(
           `http://localhost:8099/ohlc?interval=${interval.value}&period=${period.value}&symbol=${symbol}` // Use the current interval and period
         );
-        const fetchedData = await response.json();
+        const fetchedOHLCData = await response.json();
+        const fetchedData = fetchedOHLCData.stockOHLCs;
         fetchedData.sort((a, b) => a.convertedDate - b.convertedDate);
         if (Array.isArray(fetchedData) && fetchedData.length > 0) {
           const ohlcData = fetchedData
