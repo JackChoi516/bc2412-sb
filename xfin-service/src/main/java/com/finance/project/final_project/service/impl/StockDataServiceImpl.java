@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.codewave.RedisManager;
 import com.finance.project.final_project.dto.StockFiveMinDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
+import com.finance.project.final_project.entity.StockListEntity;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.mapper.EntityMapper;
 import com.finance.project.final_project.model.QuoteDataDto;
@@ -70,6 +71,13 @@ public class StockDataServiceImpl implements StockDataService {
     List<String> stockLists = this.stockListRepository.findAll() //
     .stream().map(e -> e.getSymbol()).collect(Collectors.toList());
   this.redisManager.set("stock-lists", stockLists.toArray(), Duration.ofDays(30));
+  }
+
+  @Override
+  public String addStock(String symbol){
+    StockListEntity newStock = StockListEntity.builder().symbol(symbol).build();
+    this.stockListRepository.save(newStock);
+    return newStock.getSymbol();
   }
 
   @Override

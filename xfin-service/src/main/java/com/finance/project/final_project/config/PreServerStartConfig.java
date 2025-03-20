@@ -1,5 +1,6 @@
 package com.finance.project.final_project.config;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -38,15 +39,20 @@ public class PreServerStartConfig implements CommandLineRunner{
     List<String> stocklists = this.stockDataService.getStockLists().get("stock-lists");
     System.out.println("Stock lists called.");
 
-    Long start = LocalDateTime.of(2025, 03, 19, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long end = LocalDateTime.of(2025, 03, 20, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long startOneDWk = LocalDateTime.of(2005, 01, 04, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long startOneMo = LocalDateTime.of(2005, 01, 01, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long endOneDay = LocalDate.now().minusDays(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long endOneWeek = LocalDate.now().minusWeeks(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long endOneMonth = LocalDate.now().minusMonths(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
 
     // for (String stock : stocklists){
-    //   // if (stock.contains(".HK")){
-    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, start, end, "1d");
+    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneDay, "1d");
     //     System.out.println("Saving 1d OHLC " + stock);
-    //   // }
+    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneWeek, "1wk");
+    //     System.out.println("Saving 1wk OHLC " + stock);
+    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneMo, endOneMonth, "1mo");
+    //     System.out.println("Saving 1mo OHLC " + stock);
     // }
-    // System.out.println("Saving 1d OHLC complete.");
+    System.out.println("Saving 1d OHLC complete.");
   }
 }

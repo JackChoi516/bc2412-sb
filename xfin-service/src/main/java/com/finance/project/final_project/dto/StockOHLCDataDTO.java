@@ -50,26 +50,56 @@ public class StockOHLCDataDTO {
     @JsonProperty(value = "TwentySMA")
     private Double twentySMA;
   }
-  public void setFiveSMA(int interval) {
+  public void calFiveSMA() {
     for (int i = this.stockOHLCs.size() - 1; i >= 0; i--){
       Double sum = 0.0;
       Double average = 0.0;
-      if (i - interval >= 0){
-        List<Double> found = this.stockOHLCs.subList(i - interval, i).stream() //
+      if (i - 5 >= 0){
+        List<Double> found = this.stockOHLCs.subList(i - 5, i).stream() //
           .map(e -> e.getClose()).collect(Collectors.toList());
         for (Double d : found){
           sum = BigDecimal.valueOf(sum).add(BigDecimal.valueOf(d)).doubleValue();
         }
         average = //
         BigDecimal.valueOf(sum) //
-        .divide(BigDecimal.valueOf(interval), 2, RoundingMode.UP).doubleValue();
-        if (interval == 5){
-          this.stockOHLCs.get(i).setFiveSMA(average);
-        } else if (interval == 10){
-          this.stockOHLCs.get(i).setTenSMA(average);
-        } else if (interval == 20){
-          this.stockOHLCs.get(i).setTwentySMA(average);
+        .divide(BigDecimal.valueOf(5), 2, RoundingMode.UP).doubleValue();
+        this.stockOHLCs.get(i).setFiveSMA(average);
+      }
+    }
+  }
+
+  public void calTenSMA() {
+    for (int i = this.stockOHLCs.size() - 1; i >= 0; i--){
+      Double sum = 0.0;
+      Double average = 0.0;
+      if (i - 10 >= 0){
+        List<Double> found = this.stockOHLCs.subList(i - 10, i).stream() //
+          .map(e -> e.getClose()).collect(Collectors.toList());
+        for (Double d : found){
+          sum = BigDecimal.valueOf(sum).add(BigDecimal.valueOf(d)).doubleValue();
         }
+        average = //
+        BigDecimal.valueOf(sum) //
+        .divide(BigDecimal.valueOf(10), 2, RoundingMode.UP).doubleValue();
+        this.stockOHLCs.get(i).setTenSMA(average);
+      }
+    }
+  }
+
+  public void calTwentySMA() {
+    for (int i = this.stockOHLCs.size() - 1; i >= 0; i--){
+      Double sum = 0.0;
+      Double average = 0.0;
+      if (i - 20 >= 0){
+        List<Double> found = this.stockOHLCs.subList(i - 20, i).stream() //
+          .map(e -> e.getClose()).collect(Collectors.toList());
+        for (Double d : found){
+          sum = BigDecimal.valueOf(sum).add(BigDecimal.valueOf(d)).doubleValue();
+        }
+        average = //
+        BigDecimal.valueOf(sum) //
+        .divide(BigDecimal.valueOf(20), 2, RoundingMode.UP).doubleValue();
+        this.stockOHLCs.get(i).setTwentySMA(average);
       }
     }
   }

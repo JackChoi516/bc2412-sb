@@ -28,6 +28,11 @@ public class StockDataController implements StockDataOeration{
     return this.stockDataService.getFiveMinList(symbol);
   }
 
+  @Override
+  public String addStock(String symbol){
+    return this.stockDataService.addStock(symbol);
+  }
+
   @CrossOrigin
   @Override
   public StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException{

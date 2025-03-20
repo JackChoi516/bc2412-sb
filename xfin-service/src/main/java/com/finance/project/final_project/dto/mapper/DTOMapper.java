@@ -114,9 +114,9 @@ public class DTOMapper {
       .symbol(dtos.get(0).getSymbol()) //
       .type(dtos.get(0).getType()) //
       .stockOHLCs(dtos).build();
-      result.setFiveSMA(5);
-      result.setFiveSMA(10);
-      result.setFiveSMA(20);
+      result.calFiveSMA();
+      result.calTenSMA();
+      result.calTwentySMA();
     return result;
   }
 }
