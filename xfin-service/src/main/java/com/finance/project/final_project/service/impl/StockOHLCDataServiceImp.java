@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.codewave.OHLCDataManager;
 import com.finance.project.final_project.codewave.RedisManager;
-import com.finance.project.final_project.dto.StockOHLCDTO;
+import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
@@ -64,12 +64,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
   }
 
   @Override
-  public List<StockOHLCDTO> getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
+  public StockOHLCDataDTO getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
     if (interval.equals("1d") || interval.equals("1wk")){
-      StockOHLCDTO[] redisReturn = this.redisManager.get(interval + period + symbol, StockOHLCDTO[].class);
+      StockOHLCDataDTO.StockOHLCDTO[] redisReturn = this.redisManager.get(interval + period + symbol, StockOHLCDataDTO.StockOHLCDTO[].class);
       if (redisReturn != null){
         System.out.println("Redis returned.");
-        return Arrays.asList(redisReturn);
+        List<StockOHLCDataDTO.StockOHLCDTO > ohlcList = Arrays.asList(redisReturn);
+        return this.dtoMapper.mapToOHLCData(ohlcList);
       }
       System.out.println("No OHLC Redis.");
     }
@@ -99,13 +100,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     LocalDate monthsBefore = dateNow.minusMonths(months);
     Long startOfThatDay = monthsBefore.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
 
-    List<StockOHLCDTO> result = this.dtoMapper.mapOHLC(this.tStockPriceOHLCRepository //
+    List<StockOHLCDataDTO.StockOHLCDTO> result = this.dtoMapper.mapOHLC(this.tStockPriceOHLCRepository //
     .findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startOfThatDay, symbol, "1d"));
 
     if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
         List<TStockPriceEntity> currentDayEntities = this.stockDataService.getFiveMinList(symbol);
         if (!currentDayEntities.isEmpty()){
-          StockOHLCDTO OHLCnow = this.ohlcDataManager.getOneDayOHLC(currentDayEntities);
+          StockOHLCDataDTO.StockOHLCDTO OHLCnow = this.ohlcDataManager.getOneDayOHLC(currentDayEntities);
           result.add(OHLCnow);
         }
     }
@@ -136,13 +137,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       .with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)) //
       .atTime(00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    List<StockOHLCDTO> result = //
+    List<StockOHLCDataDTO.StockOHLCDTO> result = //
       this.dtoMapper.mapOHLC(
         this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startFrom, symbol, "1wk")
         );
       Long thisWkMon = dateNow.with(DayOfWeek.MONDAY).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
       List<TStockPriceOHLCEntity> currentWkEntities = this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(thisWkMon, symbol, "1d");
-      StockOHLCDTO untilNow = this.ohlcDataManager.getOneWkByDay(currentWkEntities);
+      StockOHLCDataDTO.StockOHLCDTO untilNow = this.ohlcDataManager.getOneWkByDay(currentWkEntities);
     
     // if now is regular time
     if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
@@ -179,13 +180,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     Long startFrom = LocalDate.of(yearFrom, monthFrom, 1) //
       .atTime(00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    List<StockOHLCDTO> result = //
+    List<StockOHLCDataDTO.StockOHLCDTO> result = //
       this.dtoMapper.mapOHLC(
         this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(startFrom, symbol, "1mo")
         );
     Long currentMoFirstDay = dateNow.withDayOfMonth(1).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
     List<TStockPriceOHLCEntity> untilNows = this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(currentMoFirstDay, symbol, "1d");
-    StockOHLCDTO untilNowOHLC = this.ohlcDataManager.getOneMoByDay(untilNows);
+    StockOHLCDataDTO.StockOHLCDTO untilNowOHLC = this.ohlcDataManager.getOneMoByDay(untilNows);
     
     // if now is regular time
     if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
@@ -197,6 +198,7 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       }
     }
     result.add(untilNowOHLC);
+    
     this.redisManager.set("1mo" + period + symbol, result, Duration.ofMinutes(10));
   }
   } 

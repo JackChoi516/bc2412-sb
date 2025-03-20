@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.finance.project.final_project.controller.OHLCDataOperation;
-import com.finance.project.final_project.dto.StockOHLCDTO;
+import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 import com.finance.project.final_project.service.StockOHLCDataService;
 
@@ -24,7 +24,7 @@ public class OHLCDataController implements OHLCDataOperation{
 
   @CrossOrigin
   @Override
-  public List<StockOHLCDTO> getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
+  public StockOHLCDataDTO getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
     return this.stockOHLCDataService.getStockOHLC(interval, period, symbol);
   }
 }

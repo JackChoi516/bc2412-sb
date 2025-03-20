@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.finance.project.final_project.dto.StockOHLCDTO;
+import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 
 public interface OHLCDataOperation {
@@ -20,7 +20,7 @@ public interface OHLCDataOperation {
     );
   
   @GetMapping(value = "/ohlc")
-  List<StockOHLCDTO> getStockOHLC(
+  StockOHLCDataDTO getStockOHLC(
     @RequestParam String interval,
     @RequestParam String period, 
     @RequestParam String symbol

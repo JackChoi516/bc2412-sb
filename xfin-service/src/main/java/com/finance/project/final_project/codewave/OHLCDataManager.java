@@ -3,15 +3,14 @@ package com.finance.project.final_project.codewave;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
-
-import com.finance.project.final_project.dto.StockOHLCDTO;
+import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 
 @Component
 public class OHLCDataManager {
-    public StockOHLCDTO getOneDayOHLC(List<TStockPriceEntity> entities){
-    StockOHLCDTO result = StockOHLCDTO.builder() //
+    public StockOHLCDataDTO.StockOHLCDTO getOneDayOHLC(List<TStockPriceEntity> entities){
+      StockOHLCDataDTO.StockOHLCDTO result = StockOHLCDataDTO.StockOHLCDTO.builder() //
       .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
       .convertedDate(entities.get(entities.size() - 1).getMarketTimeWithZone().toLocalDate()) //
       .symbol(entities.get(0).getSymbol()) //
@@ -34,8 +33,8 @@ public class OHLCDataManager {
     return result;
   }
 
-  public StockOHLCDTO getOneWkByDay(List<TStockPriceOHLCEntity> entities){
-    StockOHLCDTO result = StockOHLCDTO.builder() //
+  public StockOHLCDataDTO.StockOHLCDTO getOneWkByDay(List<TStockPriceOHLCEntity> entities){
+    StockOHLCDataDTO.StockOHLCDTO result = StockOHLCDataDTO.StockOHLCDTO.builder() //
       .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
       .convertedDate(entities.get(entities.size() - 1).getConvertedDateTime().toLocalDate()) //
       .symbol(entities.get(0).getSymbol()) //
@@ -58,8 +57,8 @@ public class OHLCDataManager {
     return result;
   }
 
-  public StockOHLCDTO getOneMoByDay(List<TStockPriceOHLCEntity> entities){
-    StockOHLCDTO result = StockOHLCDTO.builder() //
+  public StockOHLCDataDTO.StockOHLCDTO getOneMoByDay(List<TStockPriceOHLCEntity> entities){
+    StockOHLCDataDTO.StockOHLCDTO result = StockOHLCDataDTO.StockOHLCDTO.builder() //
       .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
       .convertedDate(entities.get(entities.size() - 1).getConvertedDateTime().toLocalDate()) //
       .symbol(entities.get(0).getSymbol()) //

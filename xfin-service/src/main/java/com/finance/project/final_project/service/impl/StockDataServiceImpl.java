@@ -107,7 +107,6 @@ public class StockDataServiceImpl implements StockDataService {
           && quoteTimeNow > latestTime
           ) {
           TStockPriceEntity TStockPrice = this.entityMapper.map(quote);
-          // TStockPrice.setSymbol(symbol);
           TStockPrice.setType("5M");
           this.tStockPriceRepository.save(TStockPrice);
           this.redisManager.addToList("5MINLIST-" + symbol, TStockPrice, Duration.ofDays(7));
@@ -163,5 +162,4 @@ public class StockDataServiceImpl implements StockDataService {
   // &&(Instant.ofEpochSecond(quote //
   // .getQuoteResponse().getResult().get(0).getRegularMarketTime()) //
   // .atZone(ZoneId.systemDefault()).isAfter(latestTime))
-
 }

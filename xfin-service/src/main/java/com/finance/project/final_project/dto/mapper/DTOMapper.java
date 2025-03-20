@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import com.finance.project.final_project.dto.StockFiveMinDTO;
-import com.finance.project.final_project.dto.StockOHLCDTO;
+import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 
@@ -41,11 +41,11 @@ public class DTOMapper {
     return result;
   }
 
-  public List<StockOHLCDTO> mapOHLC(List<TStockPriceOHLCEntity> entities){
-    List<StockOHLCDTO> result = new ArrayList<>();
+  public List<StockOHLCDataDTO.StockOHLCDTO> mapOHLC(List<TStockPriceOHLCEntity> entities){
+    List<StockOHLCDataDTO.StockOHLCDTO> result = new ArrayList<>();
     for (TStockPriceOHLCEntity e : entities){
       result.add(
-        StockOHLCDTO.builder().regularMarketTime(e.getRegularMarketTime()) //
+        StockOHLCDataDTO.StockOHLCDTO.builder().regularMarketTime(e.getRegularMarketTime()) //
         .convertedDate(e.getConvertedDateTime().toLocalDate()) //
         .symbol(e.getSymbol()) //
         .type(e.getType()) //
@@ -59,8 +59,8 @@ public class DTOMapper {
     return result;
   }
 
-  public StockOHLCDTO mapOneDayOHLC(List<TStockPriceEntity> entities){
-    StockOHLCDTO result = StockOHLCDTO.builder() //
+  public StockOHLCDataDTO.StockOHLCDTO mapOneDayOHLC(List<TStockPriceEntity> entities){
+    StockOHLCDataDTO.StockOHLCDTO result = StockOHLCDataDTO.StockOHLCDTO.builder() //
       .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
       .convertedDate(entities.get(entities.size() - 1).getMarketTimeWithZone().toLocalDate()) //
       .symbol(entities.get(0).getSymbol()) //
@@ -83,8 +83,8 @@ public class DTOMapper {
     return result;
   }
 
-  public StockOHLCDTO mapOneWkOHLC(List<TStockPriceEntity> entities){
-    StockOHLCDTO result = StockOHLCDTO.builder() //
+  public StockOHLCDataDTO.StockOHLCDTO mapOneWkOHLC(List<TStockPriceEntity> entities){
+    StockOHLCDataDTO.StockOHLCDTO result = StockOHLCDataDTO.StockOHLCDTO.builder() //
       .regularMarketTime(entities.get(entities.size() - 1).getRegularMarketTime()) //
       .convertedDate(entities.get(entities.size() - 1).getMarketTimeWithZone().toLocalDate()) //
       .symbol(entities.get(0).getSymbol()) //
@@ -107,5 +107,16 @@ public class DTOMapper {
     return result;
   }
 
-
+  public StockOHLCDataDTO mapToOHLCData(List<StockOHLCDataDTO.StockOHLCDTO> dtos){
+    StockOHLCDataDTO result = StockOHLCDataDTO.builder() //
+      .regularMarketTime(dtos.get(dtos.size() - 1).getRegularMarketTime()) //
+      .convertedDateTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(dtos.get(dtos.size() - 1).getRegularMarketTime()), ZoneId.systemDefault())) //
+      .symbol(dtos.get(0).getSymbol()) //
+      .type(dtos.get(0).getType()) //
+      .stockOHLCs(dtos).build();
+      result.setFiveSMA(5);
+      result.setFiveSMA(10);
+      result.setFiveSMA(20);
+    return result;
+  }
 }

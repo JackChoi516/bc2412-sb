@@ -103,7 +103,7 @@ public class ScheduleConfig {
     System.out.println("All one week OHLC saved.");
   }
 
-  @Scheduled(cron = "0 20 17 1 * ?")
+  @Scheduled(cron = "0 30 07 1 * ?")
   public void saveOneMoOHLC() throws JsonProcessingException{
     LocalDate dateNow = LocalDate.now(ZoneId.systemDefault());
     Long startFrom = dateNow.minusMonths(1).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();

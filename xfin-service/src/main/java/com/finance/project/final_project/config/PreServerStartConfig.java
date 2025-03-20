@@ -39,7 +39,7 @@ public class PreServerStartConfig implements CommandLineRunner{
     System.out.println("Stock lists called.");
 
     Long start = LocalDateTime.of(2025, 03, 19, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long end = LocalDateTime.of(2025, 03, 19, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    Long end = LocalDateTime.of(2025, 03, 20, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
 
     // for (String stock : stocklists){
     //   // if (stock.contains(".HK")){

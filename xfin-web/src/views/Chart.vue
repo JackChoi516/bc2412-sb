@@ -8,17 +8,24 @@
 
     <!-- Period buttons for OHLC Chart -->
     <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
-      <button @click="changePeriod('1M')">1M</button>
-      <button @click="changePeriod('3M')">3M</button>
-      <button @click="changePeriod('6M')">6M</button>
-      <button @click="changePeriod('1Y')">1Y</button>
-      <button @click="changePeriod('5Y')">5Y</button>
+<label for="exampleSelect">Interval: 1 day  </label>  
+<select @change="changePeriod($event.target.value), changeInterval('1d')">
+  <option value="1M">1 Month</option>
+  <option value="3M">3 Months</option>
+  <option value="6M">6 Months</option>
+  <option value="1Y">1 Year</option>
+  <option value="5Y">5 Years</option>
+</select>
     </div>
 
     <!-- Interval buttons for OHLC Chart -->
     <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
-      <button @click="changeInterval('1d')">1 Day</button>
-      <button @click="changeInterval('1wk')">1 Week</button>
+<label for="exampleSelect">Interval: 1 week  </label>  
+<select @change="changePeriod($event.target.value), changeInterval('1wk')">
+  <option value="6M">6 Months</option>
+  <option value="1Y">1 Year</option>
+  <option value="5Y">5 Years</option>
+</select>
     </div>
 
     <!-- Checkbox for toggling the display of SMA line -->
@@ -234,7 +241,7 @@ export default {
           `http://localhost:8099/ohlc?interval=${interval.value}&period=${period.value}&symbol=${symbol}` // Use the current interval and period
         );
         const fetchedData = await response.json();
-
+        fetchedData.sort((a, b) => a.convertedDate - b.convertedDate);
         if (Array.isArray(fetchedData) && fetchedData.length > 0) {
           const ohlcData = fetchedData
             .map((item) => {
@@ -244,10 +251,10 @@ export default {
                 item.high !== null &&
                 item.low !== null &&
                 item.close !== null &&
-                item.convertedDateTime
+                item.convertedDate
               ) {
                 return {
-                  x: item.convertedDateTime, // Timestamp
+                  x: item.convertedDate, // Timestamp
                   y: [item.open, item.high, item.low, item.close], // OHLC data
                 };
               }
@@ -255,7 +262,7 @@ export default {
             })
             .filter((item) => item !== null); // Remove any null entries
 
-            ohlcData.sort((a, b) => a.convertedDateTime - b.convertedDateTime);
+            // ohlcData.sort((a, b) => a.convertedDate - b.convertedDate);
 
           if (ohlcData.length > 0) {
             chartType.value = "candlestick";
@@ -329,7 +336,7 @@ export default {
 
       const intervalId = setInterval(() => {
         if (chartType.value === "candlestick") {
-          fetchOHLCData(); // Fetch with the current period and interval
+          // fetchOHLCData(); // Fetch with the current period and interval
         } else {
           fetchData(); // Fetch line chart data if line chart is selected
         }
