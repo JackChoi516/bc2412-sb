@@ -9,11 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.finance.project.final_project.codewave.YahooFinanceManager;
-import com.finance.project.final_project.controller.impl.StockDataController;
 import com.finance.project.final_project.entity.StockListEntity;
 import com.finance.project.final_project.repository.StockListRepository;
-import com.finance.project.final_project.repository.TStockPriceOHLCRepository;
 import com.finance.project.final_project.service.StockDataService;
 import com.finance.project.final_project.service.StockOHLCDataService;
 
@@ -45,14 +42,16 @@ public class PreServerStartConfig implements CommandLineRunner{
     Long endOneWeek = LocalDate.now().minusWeeks(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
     Long endOneMonth = LocalDate.now().minusMonths(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    // for (String stock : stocklists){
-    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneDay, "1d");
-    //     System.out.println("Saving 1d OHLC " + stock);
-    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneWeek, "1wk");
-    //     System.out.println("Saving 1wk OHLC " + stock);
-    //     this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneMo, endOneMonth, "1mo");
-    //     System.out.println("Saving 1mo OHLC " + stock);
-    // }
+    for (String stock : stocklists){
+        this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneDay, "1d");
+        System.out.println("Saving 1d OHLC " + stock);
+        this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneDWk, endOneWeek, "1wk");
+        System.out.println("Saving 1wk OHLC " + stock);
+        this.stockOHLCDataService.saveOHLCToDatabase(stock, startOneMo, endOneMonth, "1mo");
+        System.out.println("Saving 1mo OHLC " + stock);
+    }
     System.out.println("Saving 1d OHLC complete.");
+
+    this.stockDataService.preServerSaveQuote();
   }
 }

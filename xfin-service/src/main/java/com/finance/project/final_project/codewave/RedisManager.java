@@ -17,8 +17,9 @@ public class RedisManager {
   private RedisTemplate<String, String> redisTemplate;
   private ObjectMapper objectMapper;
 
-  public RedisManager(RedisConnectionFactory factory, ObjectMapper objectMapper) {
-    this.redisTemplate = new RedisTemplate<>();
+  public RedisManager(RedisConnectionFactory factory, ObjectMapper objectMapper, RedisTemplate<String, String> redisTemplate) {
+    // this.redisTemplate = new RedisTemplate<>();
+    this.redisTemplate = redisTemplate;
     this.redisTemplate.setConnectionFactory(factory);
     this.redisTemplate.setKeySerializer(RedisSerializer.string());
     this.redisTemplate.setValueSerializer(RedisSerializer.json());

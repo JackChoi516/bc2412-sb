@@ -2,23 +2,20 @@ package com.finance.project.final_project.service.impl;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.finance.project.final_project.codewave.BusinessException;
 import com.finance.project.final_project.codewave.OHLCDataManager;
 import com.finance.project.final_project.codewave.RedisManager;
+import com.finance.project.final_project.codewave.Syscode;
 import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
 import com.finance.project.final_project.entity.TStockPriceEntity;
@@ -59,8 +56,9 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
         this.tStockPriceOHLCRepository.save(entity);
       }
       return entities;
+    } else {
+      throw BusinessException.of(Syscode.INVALID_INPUT);
     }
-    return null;
   }
 
   @Override
@@ -74,7 +72,6 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       }
       System.out.println("No OHLC Redis.");
     }
-
     return null;
   }
 
@@ -94,7 +91,7 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     }else if (period.equals("5Y")){
       months = 60;
     } else {
-      throw new IllegalArgumentException();
+      throw BusinessException.of(Syscode.INVALID_INPUT);
     }
     LocalDate dateNow = LocalDate.now();
     LocalDate monthsBefore = dateNow.minusMonths(months);
@@ -130,7 +127,7 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       monthFrom = dateNow.minusMonths(60).getMonthValue();
       yearFrom = dateNow.minusMonths(60).getYear();
     } else {
-      throw new IllegalArgumentException();
+      throw BusinessException.of(Syscode.INVALID_INPUT);
     }
 
     Long startFrom = LocalDate.of(yearFrom, monthFrom, 1) //
@@ -143,7 +140,10 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
         );
       Long thisWkMon = dateNow.with(DayOfWeek.MONDAY).atTime(0, 0).atZone(ZoneId.systemDefault()).toEpochSecond();
       List<TStockPriceOHLCEntity> currentWkEntities = this.tStockPriceOHLCRepository.findByRegularMarketTimeGreaterThanEqualAndSymbolAndType(thisWkMon, symbol, "1d");
-      StockOHLCDataDTO.StockOHLCDTO untilNow = this.ohlcDataManager.getOneWkByDay(currentWkEntities);
+      StockOHLCDataDTO.StockOHLCDTO untilNow = null;
+      if (!currentWkEntities.isEmpty()){
+        untilNow = this.ohlcDataManager.getOneWkByDay(currentWkEntities);
+      }
     
     // if now is regular time
     if (this.yahooFinanceService.getQuoteDataDto(symbol).getQuoteResponse().getResult().get(0).getMarketState().equals("REGULAR")){
@@ -174,7 +174,7 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
       monthFrom = dateNow.minusMonths(60).getMonthValue();
       yearFrom = dateNow.minusMonths(60).getYear();
     } else {
-      throw new IllegalArgumentException();
+      throw BusinessException.of(Syscode.INVALID_INPUT);
     }
 
     Long startFrom = LocalDate.of(yearFrom, monthFrom, 1) //

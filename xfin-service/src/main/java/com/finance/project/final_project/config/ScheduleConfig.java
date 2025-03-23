@@ -45,9 +45,10 @@ public class ScheduleConfig {
   public void saveQuoteData() throws JsonProcessingException{
   this.stockDataService.saveQuoteData5M();
   System.out.println("QuoteData saved. type: 5M");
+  this.saveOneDayRedis();
+  this.saveOneWkRedis();
   }
 
-  @Scheduled(fixedRate = 300000)
   public void saveOneDayRedis() throws JsonProcessingException{
     List<String> lists = this.stockDataService.getStockLists().get("stock-lists");
     for (String symbol : lists){
@@ -56,7 +57,6 @@ public class ScheduleConfig {
     System.out.println("One day OHLC saved in Redis.");
   }
 
-  @Scheduled(fixedRate = 300000)
   public void saveOneWkRedis() throws JsonProcessingException{
     List<String> lists = this.stockDataService.getStockLists().get("stock-lists");
     for (String symbol : lists){

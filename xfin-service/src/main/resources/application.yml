@@ -9,18 +9,47 @@ api:
       ohlc: "/v8/finance/chart"
       key: "/v1/test/getcrumb"
       
-spring.datasource:
-  driverClassName: "org.postgresql.Driver"
-  url : "jdbc:postgresql://localhost:5432/stockfinance"
-  username: "postgres"
-  password: "Lamz999*"
+spring:
+  datasource:
+    url: jdbc:postgresql://xfin-database.c7mw8eks0qyu.ap-south-1.rds.amazonaws.com:5432/xfin_service
+    username: xfin
+    password: "12238236a"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10  # You can adjust this value based on your needs
+  jpa:
+    hibernate:
+      ddl-auto: update  # Options: update, create, create-drop, validate (or you can use none)
+    show-sql: true  # Optional: set to true if you want to see the SQL queries being executed
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-spring.jpa:
-  show-sql: true
-  hibernate.ddl-auto: update
 
-redis:
-  enabled: "Y"
-  # requirepass: "Y"
-  maxmemory: "Y"
-  memory_limit: "256mb"
+# spring:
+  # data:
+  #   redis:
+  #     cluster:
+  #       nodes:
+  #         - xfinredis-ro.bxbskk.ng.0001.aps1.cache.amazonaws.com:6379
+  #     timeout: 5000      # Correct timeout property, in milliseconds
+  #     # password: <your-redis-password>  # Optional: If your Redis is password-protected
+
+  data:
+    redis:
+      host: xfinredis-ro.bxbskk.ng.0001.aps1.cache.amazonaws.com  # Use 'host' instead of 'nodes'
+      port: 6379  # Specify the port separately
+      timeout: 5000  # Timeout in milliseconds
+    # password: <your-redis-password>  # Optional: Uncomment if Redis is password-protected
+
+
+
+  # data:
+  #   redis:
+  #     host: localhost  # Connect to the SSH tunnel
+  #     port: 6379
+  #     timeout: 5000  # in milliseconds (optional)
+
+# redis:
+#   enabled: "Y"
+#   # requirepass: "Y"
+#   maxmemory: "Y"
+#   memory_limit: "256mb"
