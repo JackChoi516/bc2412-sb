@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ import com.finance.project.final_project.codewave.RedisManager;
 import com.finance.project.final_project.codewave.Syscode;
 import com.finance.project.final_project.dto.StockOHLCDataDTO;
 import com.finance.project.final_project.dto.mapper.DTOMapper;
+import com.finance.project.final_project.entity.StockListEntity;
 import com.finance.project.final_project.entity.TStockPriceEntity;
 import com.finance.project.final_project.entity.TStockPriceOHLCEntity;
 import com.finance.project.final_project.entity.mapper.EntityMapper;
 import com.finance.project.final_project.model.OHLCDataDto;
+import com.finance.project.final_project.repository.StockListRepository;
 import com.finance.project.final_project.repository.TStockPriceOHLCRepository;
 import com.finance.project.final_project.service.StockDataService;
 import com.finance.project.final_project.service.StockOHLCDataService;
@@ -41,6 +44,8 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
   private EntityMapper entityMapper;
   @Autowired
   private TStockPriceOHLCRepository tStockPriceOHLCRepository;
+  @Autowired
+  private StockListRepository stockListRepository;
   @Autowired
   private DTOMapper dtoMapper;
   @Autowired
@@ -63,9 +68,13 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
 
   @Override
   public StockOHLCDataDTO getStockOHLC(String interval, String period, String symbol) throws JsonProcessingException{
+    Optional<StockListEntity> entity = this.stockListRepository.findBySymbol(symbol);
+    if (!entity.isPresent()){
+      throw BusinessException.of(Syscode.INVALID_STOCK);
+    }
     if (interval.equals("1d") || interval.equals("1wk")){
       StockOHLCDataDTO.StockOHLCDTO[] redisReturn = this.redisManager.get(interval + period + symbol, StockOHLCDataDTO.StockOHLCDTO[].class);
-      if (redisReturn != null){
+      if (redisReturn.length != 0){
         System.out.println("Redis returned.");
         List<StockOHLCDataDTO.StockOHLCDTO > ohlcList = Arrays.asList(redisReturn);
         return this.dtoMapper.mapToOHLCData(ohlcList);
@@ -202,4 +211,6 @@ public class StockOHLCDataServiceImp implements StockOHLCDataService {
     this.redisManager.set("1mo" + period + symbol, result, Duration.ofMinutes(10));
   }
   } 
+
+  
 }

@@ -9,7 +9,7 @@
     <!-- Period buttons for OHLC Chart -->
 <!-- Period buttons for OHLC Chart -->
 <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
-  <label for="exampleSelect">Interval: 1 day</label>  
+  <label for="exampleSelect">Interval: 1 day  </label>  
   <select @change="updatePeriodAndInterval($event.target.value, '1d')">
     <option value="1M">1 Month</option>
     <option value="3M">3 Months</option>
@@ -21,13 +21,16 @@
 
 <!-- Interval buttons for OHLC Chart -->
 <div v-if="chartType === 'candlestick'" style="margin-bottom: 10px;">
-  <label for="exampleSelect">Interval: 1 week</label>  
+  <label for="exampleSelect">Interval: 1 week  </label>  
   <select @change="updatePeriodAndInterval($event.target.value, '1wk')">
     <option value="6M">6 Months</option>
     <option value="1Y">1 Year</option>
     <option value="5Y">5 Years</option>
   </select>
 </div>
+
+      <!-- Title for OHLC Chart -->
+    <p v-if="chartType === 'candlestick'">Showing: {{ symbol }} (Interval: {{ interval }}, Period: {{ period }})</p>
 
     <!-- Checkbox for toggling the display of SMA line -->
     <div v-if="chartType === 'line'" style="margin-bottom: 10px;">
@@ -99,7 +102,7 @@ export default {
     const updatePeriodAndInterval = async (newPeriod, newInterval) => {
   period.value = newPeriod;
   interval.value = newInterval;
-  chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
+  // chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
 
   // Fetch new data and re-render the chart
   await fetchOHLCData();
@@ -158,7 +161,7 @@ const fetchData = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://ec2-13-201-187-26.ap-south-1.compute.amazonaws.com:8099/5mindata?symbol=${symbol}`
+      `http://localhost:8099/5mindata?symbol=${symbol}`
     );
     const fetchedData = await response.json();
     const data = fetchedData.tstockPrices;
@@ -171,41 +174,44 @@ const fetchData = async () => {
       chartOptions.value.xaxis.categories = [];
       chartOptions.value.annotations.xaxis = [];
 
-      // Reduce data and timestamps together
-      let reducedData = [];
+      // Keep all data, but reduce timestamps
+      const allData = data; // Keep all data points
       let reducedTimestamps = [];
+
+      // Logic to reduce timestamps but allow "" for skipped ones
       if (data.length <= 20) {
-        reducedData = data;
         reducedTimestamps = data.map((item) => formatTimestampForChart(item.regularMarketTime));
       } else if (data.length > 20 && data.length <= 30) {
-        reducedData = data.filter((_, index) => index % 2 === 0 || index === data.length - 1);
-        reducedTimestamps = data
-          .filter((_, index) => index % 2 === 0 || index === data.length - 1)
-          .map((item) => formatTimestampForChart(item.regularMarketTime));
+        reducedTimestamps = data.map((item, index) =>
+          index % 2 === 0 || index === data.length - 1
+            ? formatTimestampForChart(item.regularMarketTime)
+            : ""
+        );
       } else {
-        reducedData = data.filter((_, index) => index % 4 === 0 || index === data.length - 1);
-        reducedTimestamps = data
-          .filter((_, index) => index % 4 === 0 || index === data.length - 1)
-          .map((item) => formatTimestampForChart(item.regularMarketTime));
+        reducedTimestamps = data.map((item, index) =>
+          index % 4 === 0 || index === data.length - 1
+            ? formatTimestampForChart(item.regularMarketTime)
+            : ""
+        );
       }
 
-      // Update series with reduced data
-      chartData.value = reducedData;
+      // Update series with ALL data (no reduction)
+      chartData.value = allData;
       chartSeries.value = [
         {
           name: "Market Prices",
-          data: reducedData.map((item) => item.regularMarketPrice),
+          data: allData.map((item) => item.regularMarketPrice),
         },
       ];
 
-      // Set reduced timestamps as strings
+      // Set reduced timestamps (some may be "")
       chartOptions.value.xaxis.categories = reducedTimestamps;
 
       // Add annotation with consistent formatting
       const formattedDate = formatDate(currentRegularMarketTime);
       chartOptions.value.annotations.xaxis.push({
         x: reducedTimestamps[reducedTimestamps.length - 1], // Use the last HH:MM timestamp
-        y: Math.max(...reducedData.map((item) => item.regularMarketPrice)),
+        y: Math.max(...allData.map((item) => item.regularMarketPrice)),
         label: {
           text: formattedDate,
           style: {
@@ -218,9 +224,9 @@ const fetchData = async () => {
         },
       });
 
-      // Add SMA data if applicable
+      // Add SMA data if applicable (using all data points)
       if (enterClicked.value && showSMA.value) {
-        const smaData = reducedData.map((item) =>
+        const smaData = allData.map((item) =>
           item.SMAFiveMins !== null ? item.SMAFiveMins : null
         );
         chartSeries.value.push({
@@ -255,10 +261,10 @@ const fetchOHLCData = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://ec2-13-201-187-26.ap-south-1.compute.amazonaws.com:8099/ohlc?interval=${interval.value}&period=${period.value}&symbol=${symbol}`
+      `http://localhost:8099/ohlc?interval=${interval.value}&period=${period.value}&symbol=${symbol}`
     );
     console.log(period.value + interval.value);
-    chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
+    // chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
     const fetchedOHLCData = await response.json();
     const fetchedData = fetchedOHLCData.stockOHLCs;
     fetchedData.sort((a, b) => a.convertedDate - b.convertedDate);
@@ -317,7 +323,7 @@ const fetchOHLCData = async () => {
 // Function to handle the period change when a button is clicked
 const changePeriod = async (newPeriod) => {
   period.value = newPeriod;
-  chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
+  // chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
 
   // Fetch new data and re-render the chart
   await fetchOHLCData();
@@ -335,7 +341,7 @@ const changePeriod = async (newPeriod) => {
 // Function to handle the interval change for OHLC chart
 const changeInterval = async (newInterval) => {
   interval.value = newInterval;
-  chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
+  // chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`; // Set title immediately
 
   // Fetch new data and re-render the chart
   await fetchOHLCData();
@@ -343,7 +349,7 @@ const changeInterval = async (newInterval) => {
   if (chartRef.value && chartRef.value.chart) {
     chartRef.value.chart.updateOptions({
       title: {
-        text: `OHLC chart for ${symbol} (${period.value} - ${interval.value})`,
+        // text: `OHLC chart for ${symbol} (${period.value} - ${interval.value})`,
         align: "center",
       },
     }); // Update existing chart title without destroying it
@@ -383,7 +389,7 @@ const setChartType = async (type) => {
     await fetchData();
   } else if (type === "candlestick") {
     chartOptions.value.chart.type = "candlestick";
-    chartOptions.value.title.text = `OHLC chart for ${symbol} (${period.value} - ${interval.value})`;
+    chartOptions.value.title.text = `OHLC chart for ${symbol}`;
     await fetchOHLCData();
   }
 

@@ -41,8 +41,8 @@ public class StockDataServiceImpl implements StockDataService {
   private RedisManager redisManager;
   @Autowired
   private YahooFinanceService yahooFinanceService;
-  @Autowired
-  private StockOHLCDataService stockOHLCDataService;
+  // @Autowired
+  // private StockOHLCDataService stockOHLCDataService;
   @Autowired
   private EntityMapper entityMapper;
   @Autowired
@@ -92,14 +92,14 @@ public class StockDataServiceImpl implements StockDataService {
       priceEntity.setType("firstSave");
       this.tStockPriceRepository.save(priceEntity);
 
-    Long startOneDWk = LocalDateTime.of(2005, 01, 04, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long startOneMo = LocalDateTime.of(2005, 01, 01, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long endOneDay = LocalDate.now().minusDays(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long endOneWeek = LocalDate.now().minusWeeks(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
-    Long endOneMonth = LocalDate.now().minusMonths(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
-    this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneDWk, endOneDay, "1d");
-    this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneDWk, endOneWeek, "1wk");
-    this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneMo, endOneMonth, "1mo");
+    // Long startOneDWk = LocalDateTime.of(2014, 01, 04, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    // Long startOneMo = LocalDateTime.of(2014, 01, 01, 00, 00, 00).atZone(ZoneId.systemDefault()).toEpochSecond();
+    // Long endOneDay = LocalDate.now().minusDays(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
+    // Long endOneWeek = LocalDate.now().minusWeeks(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
+    // Long endOneMonth = LocalDate.now().minusMonths(1).atTime(23, 59).atZone(ZoneId.systemDefault()).toEpochSecond();
+    // this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneDWk, endOneDay, "1d");
+    // this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneDWk, endOneWeek, "1wk");
+    // this.stockOHLCDataService.saveOHLCToDatabase(symbol, startOneMo, endOneMonth, "1mo");
       return newStock.getSymbol();
     } else {
       throw BusinessException.of(Syscode.INVALID_STOCK);
@@ -160,11 +160,15 @@ public class StockDataServiceImpl implements StockDataService {
 
   @Override
   public StockFiveMinDTO getFiveMinData(String symbol) throws JsonProcessingException {
+    Optional<StockListEntity> entity = this.stockListRepository.findBySymbol(symbol);
+    if (!entity.isPresent()){
+      throw BusinessException.of(Syscode.INVALID_STOCK);
+    }
     List<TStockPriceEntity> entities = this.getFiveMinList(symbol);
     if (!entities.isEmpty()) {
       StockFiveMinDTO result = this.dtoMapper.map(entities);
       return result;
-    }
+    } 
     TStockPriceEntity preStateEntity = this.entityMapper.map(this.yahooFinanceService.getQuoteDataDto(symbol));
     List<TStockPriceEntity> preState = new ArrayList<>();
     preState.add(preStateEntity);

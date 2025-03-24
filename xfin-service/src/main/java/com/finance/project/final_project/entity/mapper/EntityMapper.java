@@ -26,7 +26,7 @@ public class EntityMapper {
         .marketTimeWithZone(
         ZonedDateTime.ofInstant(
           Instant.ofEpochSecond(quoteData.getQuoteResponse().getResult().get(0).getRegularMarketTime())
-        , ZoneId.systemDefault())
+        , ZoneId.of(quoteData.getQuoteResponse().getResult().get(0).getExchangeTimezoneName()))
         ) //
         .regularMarketPrice(quoteData.getQuoteResponse().getResult().get(0).getRegularMarketPrice()) //
         .regularMarketChangePercent(
