@@ -27,27 +27,15 @@
       </select>
     </div>
 
-    <!-- Line Chart Controls and DateTime -->
-    <div v-if="chartType === 'line'" class="controls-container">
-      <div class="centered-controls">
-        <label for="showSMA">
-          <input type="checkbox" id="showSMA" v-model="showSMA" /> Show Simple Moving Average
-          <button @click="onEnterClicked">Enter</button>
-        </label>
-      </div>
-      <span v-if="latestDateTime" class="datetime">
-        Last update: {{ latestDateTime }}
-      </span>
-    </div>
+    <!-- Title for OHLC Chart -->
+    <p v-if="chartType === 'candlestick'">Showing: {{ symbol }} (Interval: {{ interval }}, Period: {{ period }})</p>
 
-    <!-- OHLC Chart Controls and DateTime -->
-    <div v-if="chartType === 'candlestick'" class="controls-container">
-      <div class="centered-controls">
-        <!-- Placeholder for future controls -->
-      </div>
-      <span v-if="latestDateTime" class="datetime">
-        Last update: {{ latestDateTime }}
-      </span>
+    <!-- Checkbox for toggling SMA line in Line Chart -->
+    <div v-if="chartType === 'line'" style="margin-bottom: 10px;">
+      <label for="showSMA">
+        <input type="checkbox" id="showSMA" v-model="showSMA" /> Show Simple Moving Average
+      </label>
+      <button @click="onEnterClicked">Enter</button>
     </div>
 
     <!-- Chart rendering with ref -->
@@ -114,7 +102,6 @@ export default {
     const chartType = ref("line");
     const period = ref('1M');
     const interval = ref('1d');
-    const latestDateTime = ref('');
     let intervalId = null;
 
     const convertToTime = (timestamp) => {
@@ -129,13 +116,6 @@ export default {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     };
 
-    const formatFullDateTime = (dateInput) => {
-      // Handle string or timestamp input
-      const date = typeof dateInput === 'string' ? new Date(dateInput) : new Date(dateInput);
-      if (isNaN(date.getTime())) return "";
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-    };
-
     const fetchLineData = async () => {
       try {
         const apiUrl = `/5mindata?symbol=${symbol.value}`;
@@ -148,9 +128,8 @@ export default {
         const fetchedData = await response.json();
         const data = fetchedData.tstockPrices.sort((a, b) => a.regularMarketTime - b.regularMarketTime);
         const currentRegularMarketTime = fetchedData.currentRegularMarketTime;
-        const convertedMarketTime = fetchedData.convertedMarketTime;
 
-        return { data, currentRegularMarketTime, convertedMarketTime };
+        return { data, currentRegularMarketTime };
       } catch (error) {
         console.error("Error fetching line data:", error);
         return null;
@@ -165,13 +144,12 @@ export default {
         return;
       }
 
-      const { data: allData, currentRegularMarketTime, convertedMarketTime } = result;
+      const { data: allData, currentRegularMarketTime } = result;
       chartData.value = allData;
 
       console.log("Initial:", initial);
       console.log("Fetched allData:", allData);
       console.log("Fetched currentRegularMarketTime:", currentRegularMarketTime);
-      console.log("Fetched convertedMarketTime:", convertedMarketTime);
 
       if (initial) {
         chartOptions.value.title.text = `Line Chart for ${symbol.value}`;
@@ -180,7 +158,7 @@ export default {
       const newCategories = allData.map((item, index) => {
         const time = convertToTime(item.regularMarketTime);
         console.log(`Index ${index} - regularMarketTime: ${item.regularMarketTime}, Converted: ${time}`);
-        if (allData.length <= 18) return time;
+        if (allData.length <= 20) return time;
         if (allData.length <= 30) return (index % 2 === 0 || index === allData.length - 1) ? time : "";
         return (index % 4 === 0 || index === allData.length - 1) ? time : "";
       });
@@ -190,26 +168,15 @@ export default {
       const formattedDate = formatDate(correctedTimestamp);
       const maxPrice = Math.max(...allData.map((item) => item.regularMarketPrice));
 
-      latestDateTime.value = formatFullDateTime(convertedMarketTime || correctedTimestamp);
-
-      chartOptions.value = {
-        ...chartOptions.value,
-        xaxis: {
-          type: 'category',
-          categories: newCategories,
-          labels: { style: { fontSize: "12px", colors: ["#333"] } },
+      chartOptions.value.xaxis.categories = newCategories;
+      chartOptions.value.annotations.xaxis = [{
+        x: lastTime,
+        y: maxPrice,
+        label: {
+          text: formattedDate || "N/A",
+          style: { fontSize: "14px", color: "#333", background: "transparent" },
         },
-        annotations: {
-          xaxis: [{
-            x: lastTime,
-            y: maxPrice,
-            label: {
-              text: formattedDate || "N/A",
-              style: { fontSize: "14px", color: "#333", background: "transparent" },
-            },
-          }],
-        },
-      };
+      }];
 
       chartSeries.value = [{
         name: "Market Prices",
@@ -231,13 +198,37 @@ export default {
       console.log("New X-Axis Categories:", newCategories);
       console.log("New Annotation:", chartOptions.value.annotations.xaxis);
       console.log("New Series:", chartSeries.value);
-      console.log("Latest DateTime:", latestDateTime.value);
 
       await nextTick();
       if (chartRef.value) {
         try {
-          chartRef.value.updateSeries(chartSeries.value, initial);
-          chartRef.value.updateOptions(chartOptions.value, true, initial);
+          if (initial) {
+            // Initial load: update with animation
+            chartRef.value.updateSeries(chartSeries.value, false);
+            chartRef.value.updateOptions({
+              xaxis: {
+                type: 'category',
+                categories: newCategories.slice(),
+                labels: { style: { fontSize: "12px", colors: ["#333"] } },
+              },
+              annotations: {
+                xaxis: chartOptions.value.annotations.xaxis.slice(),
+              },
+            }, true, true);
+          } else {
+            // Auto-refresh: update without animation
+            chartRef.value.updateSeries(chartSeries.value, false);
+            chartRef.value.updateOptions({
+              xaxis: {
+                type: 'category',
+                categories: newCategories.slice(),
+                labels: { style: { fontSize: "12px", colors: ["#333"] } },
+              },
+              annotations: {
+                xaxis: chartOptions.value.annotations.xaxis.slice(),
+              },
+            }, true, false);
+          }
 
           const appliedCategories = Array.from(
             chartRef.value.$el.querySelectorAll('.apexcharts-xaxis-texts-g text')
@@ -264,8 +255,7 @@ export default {
 
         const fetchedData = await response.json();
         const data = fetchedData.stockOHLCs.sort((a, b) => new Date(a.convertedDate) - new Date(b.convertedDate));
-        const convertedDateTime = fetchedData.convertedDateTime; // Top-level field
-        return { data, convertedDateTime };
+        return data;
       } catch (error) {
         console.error('Error fetching OHLC data:', error);
         return null;
@@ -274,16 +264,14 @@ export default {
 
     const updateOHLCChart = async (initial = false) => {
       if (initial) isLoading.value = true;
-      const result = await fetchOHLCData();
-      if (!result) {
+      const allData = await fetchOHLCData();
+      if (!allData) {
         isLoading.value = false;
         return;
       }
 
-      const { data: allData, convertedDateTime } = result;
-
       if (initial) {
-        chartOptions.value.title.text = `OHLC Chart for ${symbol.value} (Range: ${period.value} Interval: ${interval.value})`;
+        chartOptions.value.title.text = `OHLC Chart for ${symbol.value} (${period.value} - ${interval.value})`;
         chartOptions.value.xaxis.categories = allData.map((item, index) => {
           const date = formatDate(new Date(item.convertedDate));
           if (allData.length <= 20) return date;
@@ -317,24 +305,21 @@ export default {
         { name: "20-SMA", data: twentySmaData, type: "line", color: "#D81B60", stroke: { width: 2, curve: "smooth" } },
       ];
 
-      // Use top-level convertedDateTime for OHLC
-      latestDateTime.value = formatFullDateTime(convertedDateTime);
-
       console.log('OHLC Series Updated:', chartSeries.value);
       console.log('OHLC Categories:', chartOptions.value.xaxis.categories);
-      console.log("Latest DateTime:", latestDateTime.value);
 
       await nextTick();
       if (chartRef.value) {
         try {
           chartRef.value.updateSeries(chartSeries.value, initial);
           if (initial) {
-            chartOptions.value.xaxis = {
-              type: 'category',
-              categories: chartOptions.value.xaxis.categories,
-              labels: { style: { fontSize: "12px", colors: ["#333"] } },
-            };
-            chartRef.value.updateOptions(chartOptions.value, true, true);
+            chartRef.value.updateOptions({
+              xaxis: {
+                type: 'category',
+                categories: chartOptions.value.xaxis.categories,
+                labels: { style: { fontSize: "12px", colors: ["#333"] } },
+              },
+            }, true, true);
           }
         } catch (error) {
           console.error("Error updating OHLC chart:", error);
@@ -361,7 +346,6 @@ export default {
       chartType.value = type;
       chartSeries.value = [];
       chartOptions.value.annotations.xaxis = [];
-      latestDateTime.value = '';
 
       if (type === "line") {
         chartOptions.value.chart.type = "line";
@@ -417,7 +401,6 @@ export default {
       period,
       interval,
       symbol,
-      latestDateTime,
     };
   },
 };
@@ -439,26 +422,5 @@ button {
   padding: 10px;
   margin-right: 10px;
   cursor: pointer;
-}
-
-.controls-container {
-  display: flex;
-  justify-content: center; /* Center the entire content initially */
-  align-items: center;
-  width: 50%; /* Match chart width */
-  margin: 0 auto 10px auto; /* Keep some space below */
-  position: relative; /* For absolute positioning of datetime */
-}
-
-.centered-controls {
-  text-align: center; /* Center the SMA controls as a unit */
-}
-
-.datetime {
-  font-size: 12px; /* Smaller font to avoid overlap */
-  color: #666;
-  white-space: nowrap; /* Prevent wrapping */
-  position: absolute; /* Position it to the right */
-  right: 0; /* Align to the right edge */
 }
 </style>
